@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Shield, Home, Search, User } from 'lucide-react';
+import WalletButton from './WalletButton';
 
 const Header = () => {
   return (
@@ -33,10 +34,7 @@ const Header = () => {
               <Search className="h-4 w-4 mr-2" />
               Search
             </Button>
-            <Button variant="outline" size="sm">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
+            <WalletButton />
           </div>
         </div>
       </div>

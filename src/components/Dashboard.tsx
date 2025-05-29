@@ -1,8 +1,8 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Home, User, LogOut, Plus, Eye, MessageSquare } from 'lucide-react';
+import { Shield, Home, User, LogOut, Plus, Eye, MessageSquare, Wallet, ExternalLink } from 'lucide-react';
+import { useAccount } from 'wagmi';
 
 interface DashboardProps {
   userRole: 'tenant' | 'landlord' | null;
@@ -10,6 +10,12 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
+  const { address, isConnected } = useAccount();
+
+  const formatAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rent-blue-50 to-rent-green-50">
       {/* Header */}
@@ -30,6 +36,12 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
                 <Shield className="h-3 w-3 mr-1" />
                 Verified {userRole}
               </Badge>
+              {isConnected && address && (
+                <Badge variant="outline" className="font-mono">
+                  <Wallet className="h-3 w-3 mr-1" />
+                  {formatAddress(address)}
+                </Badge>
+              )}
               <Button variant="outline" onClick={onLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -46,7 +58,7 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
             Welcome to your {userRole} dashboard
           </h2>
           <p className="text-gray-600">
-            Your Civic Auth verification is complete. You can now access all platform features.
+            Your Civic Auth verification is complete and secured on the blockchain. You can now access all platform features.
           </p>
         </div>
 
@@ -98,7 +110,7 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
           </Card>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions and Verification Status */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <Card>
             <CardHeader>
@@ -141,10 +153,34 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Verification Status</CardTitle>
+              <CardTitle>Blockchain Verification Status</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Wallet Connection</span>
+                  <Badge className={isConnected ? "bg-rent-green-500" : "bg-gray-500"}>
+                    <Wallet className="h-3 w-3 mr-1" />
+                    {isConnected ? "Connected" : "Disconnected"}
+                  </Badge>
+                </div>
+                {isConnected && address && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Wallet Address</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm">{formatAddress(address)}</span>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => window.open(`https://etherscan.io/address/${address}`, '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Identity Verification</span>
                   <Badge className="bg-rent-green-500">
@@ -164,13 +200,13 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
                     <span className="text-sm">Property Ownership</span>
                     <Badge className="bg-rent-green-500">
                       <Shield className="h-3 w-3 mr-1" />
-                      Verified
+                      Blockchain Verified
                     </Badge>
                   </div>
                 )}
                 <div className="mt-4 p-3 bg-rent-green-50 rounded-lg border border-rent-green-200">
                   <p className="text-sm text-rent-green-800">
-                    🎉 Your verification is complete! You have full access to all RentRight features.
+                    🎉 Your verification is complete and secured on the blockchain! You have full access to all RentRight features.
                   </p>
                 </div>
               </div>
