@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Shield, Home, Search, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import WalletButton from './WalletButton';
 
 const Header = () => {
@@ -8,14 +9,14 @@ const Header = () => {
     <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <div className="bg-gradient-to-r from-rent-blue-600 to-rent-green-600 p-2 rounded-lg">
               <Home className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-rent-blue-600 to-rent-green-600 bg-clip-text text-transparent">
               RentRight
             </h1>
-          </div>
+          </Link>
           
           <nav className="hidden md:flex items-center space-x-6">
             <a href="#properties" className="text-gray-600 hover:text-rent-blue-600 transition-colors">
