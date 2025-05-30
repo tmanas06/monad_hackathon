@@ -1,16 +1,15 @@
 
 import { createConfig, http } from 'wagmi';
 import { mainnet, polygon, arbitrum } from 'wagmi/chains';
-import { injected, metaMask, walletConnect } from 'wagmi/connectors';
+import { injected, metaMask } from 'wagmi/connectors';
 
 export const config = createConfig({
   chains: [mainnet, polygon, arbitrum],
   connectors: [
     injected(),
     metaMask(),
-    walletConnect({
-      projectId: 'your-project-id', // Replace with your actual WalletConnect project ID
-    }),
+    // Removed WalletConnect temporarily to fix loading issues
+    // To re-enable, get a proper project ID from https://cloud.walletconnect.com/
   ],
   transports: {
     [mainnet.id]: http(),
