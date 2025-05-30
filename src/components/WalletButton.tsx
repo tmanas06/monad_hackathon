@@ -6,6 +6,7 @@ import { Wallet, ExternalLink, Copy, CheckCircle } from 'lucide-react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import PhantomWallet from './PhantomWallet';
 
 const WalletButton = () => {
   const { address, isConnected } = useAccount();
@@ -77,39 +78,42 @@ const WalletButton = () => {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-rent-blue-600 to-rent-green-600 hover:from-rent-blue-700 hover:to-rent-green-700">
-          <Wallet className="h-4 w-4 mr-2" />
-          Connect Wallet
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Connect Your Wallet</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          {connectors.map((connector) => (
-            <Card 
-              key={connector.id}
-              className="cursor-pointer hover:shadow-md transition-all duration-200"
-              onClick={() => {
-                connect({ connector });
-                setIsOpen(false);
-              }}
-            >
-              <CardContent className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <Wallet className="h-6 w-6" />
-                  <span className="font-medium">{connector.name}</span>
-                </div>
-                <ExternalLink className="h-4 w-4 text-gray-400" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div className="flex items-center gap-2">
+      <PhantomWallet />
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button className="bg-gradient-to-r from-rent-blue-600 to-rent-green-600 hover:from-rent-blue-700 hover:to-rent-green-700">
+            <Wallet className="h-4 w-4 mr-2" />
+            Connect Wallet
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Connect Your Wallet</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {connectors.map((connector) => (
+              <Card 
+                key={connector.id}
+                className="cursor-pointer hover:shadow-md transition-all duration-200"
+                onClick={() => {
+                  connect({ connector });
+                  setIsOpen(false);
+                }}
+              >
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-3">
+                    <Wallet className="h-6 w-6" />
+                    <span className="font-medium">{connector.name}</span>
+                  </div>
+                  <ExternalLink className="h-4 w-4 text-gray-400" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
