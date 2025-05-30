@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, CheckCircle, Blockchain, Lock, Users } from 'lucide-react';
+import { Shield, CheckCircle, Database, Lock, Users } from 'lucide-react';
 
 const VerificationSection = () => {
   return (
@@ -33,7 +33,7 @@ const VerificationSection = () => {
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="bg-rent-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Blockchain className="h-8 w-8 text-rent-green-600" />
+                <Database className="h-8 w-8 text-rent-green-600" />
               </div>
               <CardTitle className="text-xl">Blockchain Security</CardTitle>
             </CardHeader>
