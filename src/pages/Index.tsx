@@ -5,6 +5,8 @@ import Hero from '@/components/Hero';
 import PropertyListings from '@/components/PropertyListings';
 import CivicAuthButton from '@/components/CivicAuthButton';
 import Dashboard from '@/components/Dashboard';
+import VerificationSection from '@/components/VerificationSection';
+import AboutSection from '@/components/AboutSection';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,6 +26,8 @@ const Index = () => {
       <Header />
       <Hero />
       <PropertyListings />
+      <VerificationSection />
+      <AboutSection />
       <div className="fixed bottom-8 right-8 z-50">
         <CivicAuthButton onAuthSuccess={handleAuthSuccess} />
       </div>
