@@ -29,13 +29,13 @@ const Header = () => {
           >
             Properties
           </a>
-          <a
+          {/* <a
             href="#verification"
             className="text-lg text-neutral-800 hover:text-black transition font-medium"
             style={{ fontFamily: '"Outfit", sans-serif' }}
           >
             Verification
-          </a>
+          </a> */}
           <a
             href="#about"
             className="text-lg text-neutral-800 hover:text-black transition font-medium"
