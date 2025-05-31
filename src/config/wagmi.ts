@@ -13,7 +13,7 @@ export const config = createConfig({
       },
     }),
     walletConnect({
-      projectId: process.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
       metadata: {
         name: 'RentRight',
         description: 'Blockchain-based rental platform',
