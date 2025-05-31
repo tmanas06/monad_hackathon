@@ -1,58 +1,51 @@
-
+import '../fonts.css';
 import { Button } from '@/components/ui/button';
-import { Shield, CheckCircle, Clock, Users } from 'lucide-react';
+import { Shield } from 'lucide-react';
+import CivicAuthButton from '@/components/CivicAuthButton';
+
 
 const Hero = () => {
   return (
-    <section className="py-20 px-4">
-      <div className="container mx-auto text-center">
-        <div className="max-w-4xl mx-auto animate-fade-in">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-rent-blue-600 via-rent-blue-700 to-rent-green-600 bg-clip-text text-transparent">
-            Trusted Rentals,
-            <br />
-            Verified Tenants
-          </h2>
-          
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            RentRight uses Civic Auth for secure tenant verification, making the rental process faster, 
-            safer, and more reliable for both landlords and tenants.
+    <section className="relative bg-[#FAF6F2] min-h-[90vh] flex items-center px-6 md:px-0">
+      <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center md:items-start gap-12">
+        {/* Left: Headline and Text */}
+        <div className="flex-1 pt-12 md:pt-0">
+          <h1
+            className="text-5xl md:text-7xl font-bold mb-8 leading-tight"
+            style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}
+          >
+            Trusted Rentals,<br />Verified Tenants
+          </h1>
+          <p
+            className="text-lg md:text-xl text-neutral-600 mb-10 max-w-lg"
+            style={{ fontFamily: '"Outfit", sans-serif' }}
+          >
+            RentRight uses Civic Auth for secure tenant verification, making the rental process faster, safer, and more reliable for both landlords and tenants.
           </p>
+          <CivicAuthButton />
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" className="bg-gradient-to-r from-rent-blue-600 to-rent-blue-700 hover:from-rent-blue-700 hover:to-rent-blue-800">
-              <Shield className="h-5 w-5 mr-2" />
-              Get Verified
-            </Button>
-            <Button size="lg" variant="outline" className="border-rent-blue-300 text-rent-blue-700 hover:bg-rent-blue-50">
-              List Your Property
-            </Button>
+        {/* Right: Graphic and Image */}
+        <div className="flex-1 relative flex items-center justify-center">
+          {/* Large orange circle accent */}
+          <div className="absolute -z-10 w-72 h-72 md:w-96 md:h-96 bg-orange-400 rounded-full right-0 top-10 md:top-0 md:right-10 opacity-90"></div>
+          {/* Placeholder for user image */}
+          <div className="relative z-10 w-60 h-60 md:w-80 md:h-80 rounded-full overflow-hidden flex items-center justify-center border-8 border-white shadow-lg">
+            {/* Replace with your own image */}
+            <img
+              src="/keyhand.jpg"
+              alt="Tenant"
+              className="object-cover w-full h-full"
+            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
-              <div className="bg-rent-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-6 w-6 text-rent-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Verified Identity</h3>
-              <p className="text-gray-600">Civic Auth ensures all tenants are verified with blockchain-based identity verification.</p>
-            </div>
-
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
-              <div className="bg-rent-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-6 w-6 text-rent-blue-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Fast Applications</h3>
-              <p className="text-gray-600">Streamlined process reduces application time from days to minutes.</p>
-            </div>
-
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
-              <div className="bg-rent-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-6 w-6 text-rent-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Trusted Network</h3>
-              <p className="text-gray-600">Build a community of verified landlords and tenants you can trust.</p>
-            </div>
-          </div>
+          {/* Optional: geometric accent (SVG or CSS) */}
+          <svg
+            className="absolute left-0 top-0 md:left-10 md:top-10 w-24 h-24 text-black opacity-20"
+            fill="none"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="2" />
+          </svg>
         </div>
       </div>
     </section>

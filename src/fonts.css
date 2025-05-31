@@ -1,0 +1,13 @@
+/* src/fonts.css */
+@font-face {
+  font-family: 'techno';
+  src: url('/fonts/CyberTechnoDemoRegular-yYxa5.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'cyber';
+  src: url('/fonts/RoundedSansSerif7-ZzMJ.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}

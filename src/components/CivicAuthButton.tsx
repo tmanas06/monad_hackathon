@@ -1,152 +1,273 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Shield, CheckCircle, User, Building, Wallet } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAccount } from 'wagmi';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Shield, User, Building, Loader2,Home } from 'lucide-react';
+import { useUser } from '@civic/auth-web3/react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-interface CivicAuthButtonProps {
-  onAuthSuccess: (role: 'tenant' | 'landlord') => void;
-}
+const ACCENT = "#FF6A2B"; // Orange accent
 
-const CivicAuthButton = ({ onAuthSuccess }: CivicAuthButtonProps) => {
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
-  const { isConnected, address } = useAccount();
+const CivicAuthButton = () => {
+  const [userRole, setUserRole] = useState<'tenant' | 'landlord' | null>(null);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'tenant' | 'landlord' | null>(null);
+  const { user, signIn, signOut } = useUser();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleCivicAuth = async (role: 'tenant' | 'landlord') => {
-    if (!isConnected) {
-      toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet first to verify with Civic Auth",
-        variant: "destructive",
-      });
-      return;
+  // Load saved role and redirect if necessary
+  useEffect(() => {
+    if (user) {
+      const savedRole = localStorage.getItem(`userRole_${user.id || user.email}`);
+      if (savedRole) {
+        setUserRole(savedRole as 'tenant' | 'landlord');
+        if (location.pathname === '/') {
+          setIsRedirecting(true);
+          setTimeout(() => {
+            if (savedRole === 'tenant') {
+              navigate('/tenants');
+            } else {
+              navigate('/landlords');
+            }
+          }, 1000);
+        }
+      } else {
+        setShowRoleDialog(true);
+      }
     }
+  }, [user, location.pathname, navigate]);
 
-    setIsVerifying(true);
-    
+  const handleSignIn = async () => {
+    setIsSigningIn(true);
     try {
-      console.log('Initiating Civic Auth verification for role:', role);
-      console.log('Connected wallet address:', address);
-      
-      // Simulate blockchain verification process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Civic Auth verification successful');
-      toast({
-        title: "Verification successful!",
-        description: `You've been verified as a ${role} using blockchain technology`,
-      });
-      onAuthSuccess(role);
+      await signIn();
     } catch (error) {
-      console.error('Civic Auth verification failed:', error);
       toast({
-        title: "Verification failed",
-        description: "Please try again or contact support",
+        title: "Sign-in failed",
+        description: "Please try again",
         variant: "destructive",
       });
     } finally {
-      setIsVerifying(false);
-      setShowRoleSelection(false);
+      setIsSigningIn(false);
     }
   };
 
-  return (
-    <Dialog open={showRoleSelection} onOpenChange={setShowRoleSelection}>
-      <DialogTrigger asChild>
-        <Button 
-          size="lg" 
-          className="bg-gradient-to-r from-rent-blue-600 to-rent-green-600 hover:from-rent-blue-700 hover:to-rent-green-700 shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <Shield className="h-5 w-5 mr-2" />
-          Get Verified with Civic
-        </Button>
-      </DialogTrigger>
-      
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl font-bold">
-            Choose Your Role
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4 p-4">
-          {!isConnected && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center gap-2 text-amber-800">
-                <Wallet className="h-4 w-4" />
-                <span className="text-sm font-medium">Connect your wallet first to proceed with verification</span>
-              </div>
-            </div>
-          )}
-          
-          <p className="text-center text-gray-600 mb-6">
-            Select your role to start the Civic Auth verification process
-          </p>
-          
-          <div className="grid grid-cols-1 gap-4">
-            <Card 
-              className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-rent-blue-300 ${!isConnected ? 'opacity-50' : ''}`}
-              onClick={() => isConnected && handleCivicAuth('tenant')}
-            >
-              <CardHeader className="text-center pb-3">
-                <div className="bg-rent-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <User className="h-8 w-8 text-rent-blue-600" />
-                </div>
-                <CardTitle className="text-lg">I'm a Tenant</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center pt-0">
-                <p className="text-sm text-gray-600">
-                  Looking for a place to rent
-                </p>
-                <div className="flex items-center justify-center mt-3 text-sm text-rent-green-600">
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  Blockchain Identity Verification
-                </div>
-              </CardContent>
-            </Card>
+  const handleRoleSelection = (role: 'tenant' | 'landlord') => {
+    setSelectedRole(role);
+    setUserRole(role);
+    setShowRoleDialog(false);
+    setIsRedirecting(true);
 
-            <Card 
-              className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-rent-green-300 ${!isConnected ? 'opacity-50' : ''}`}
-              onClick={() => isConnected && handleCivicAuth('landlord')}
-            >
-              <CardHeader className="text-center pb-3">
-                <div className="bg-rent-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Building className="h-8 w-8 text-rent-green-600" />
-                </div>
-                <CardTitle className="text-lg">I'm a Landlord</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center pt-0">
-                <p className="text-sm text-gray-600">
-                  I have properties to rent
-                </p>
-                <div className="flex items-center justify-center mt-3 text-sm text-rent-green-600">
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  Property & Identity Verification
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+    if (user) {
+      localStorage.setItem(`userRole_${user.id || user.email}`, role);
+    }
 
-          {isVerifying && (
-            <div className="text-center p-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rent-blue-600 mx-auto mb-3"></div>
-              <p className="text-sm text-gray-600">Verifying with Civic Auth and blockchain...</p>
-              {address && (
-                <p className="text-xs text-gray-500 mt-2">
-                  Wallet: {address.slice(0, 6)}...{address.slice(-4)}
-                </p>
-              )}
-            </div>
-          )}
+    toast({
+      title: "Role selected!",
+      description: `You're now verified as a ${role} with Civic Auth`,
+    });
+
+    setTimeout(() => {
+      if (role === 'tenant') {
+        navigate('/tenants');
+      } else {
+        navigate('/landlords');
+      }
+    }, 1300);
+  };
+
+  const handleSignOut = () => {
+    if (user) {
+      localStorage.removeItem(`userRole_${user.id || user.email}`);
+    }
+    setUserRole(null);
+    setIsRedirecting(false);
+    setSelectedRole(null);
+    signOut();
+    navigate('/');
+  };
+
+  // Show redirecting state when user has role and is being redirected
+  if (isRedirecting && userRole) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <div className="flex items-center gap-3 mb-4">
+          <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+          <span 
+            className="text-lg font-medium text-neutral-700"
+            style={{ fontFamily: '"Outfit", sans-serif' }}
+          >
+            Redirecting to your {selectedRole || userRole} dashboard...
+          </span>
         </div>
-      </DialogContent>
-    </Dialog>
-  );
+        <div className="w-64 h-2 bg-neutral-200 rounded-full overflow-hidden">
+          <div className="h-full" style={{
+            background: `linear-gradient(90deg, ${ACCENT} 0%, #181818 100%)`
+          }}></div>
+        </div>
+      </div>
+    );
+  }
+
+  // User not signed in
+  if (!user) {
+    return (
+      <Button
+        size="lg"
+        onClick={handleSignIn}
+        disabled={isSigningIn}
+        className="rounded-full px-8 py-4 bg-black text-white hover:bg-neutral-800 transition disabled:opacity-70"
+        style={{ fontFamily: '"Outfit", sans-serif' }}
+      >
+        {isSigningIn ? (
+          <>
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+            Signing in with Civic...
+          </>
+        ) : (
+          <>
+            <Shield className="h-5 w-5 mr-2" />
+            Get Verified with Civic
+          </>
+        )}
+      </Button>
+    );
+  }
+
+  // --- THEMED ROLE SELECTION DIALOG ---
+  if (user && !userRole) {
+    return (
+      <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
+       <DialogContent className="rounded-3xl border-[5px] border-black shadow-2xl bg-[#FAF6F2] max-w-lg p-0">
+  <div className="flex flex-col md:flex-row items-stretch">
+    {/* Left: Black circle with white house icon and RentRight name */}
+    <div className="hidden md:flex flex-col items-center justify-center p-8 relative">
+      <div
+        className="rounded-full flex items-center justify-center"
+        style={{
+          background: 'black',
+          width: 100,
+          height: 100,
+        }}
+      >
+        {/* RentRight house icon (SVG, matches your logo) */}
+         <div className="bg-black rounded-full p-2 flex items-center justify-center transition group-hover:scale-105">
+            <Home className="h-11 w-11 text-white" />
+          </div>
+      </div>
+      <span
+        className="mt-4 text-2xl font-bold tracking-tight text-black"
+        style={{ fontFamily: '"Cyber", sans-serif', letterSpacing: '0.03em' }}
+      >
+        RentRight
+      </span>
+    </div>
+    {/* Right: Content */}
+    <div className="flex-1 p-8">
+      <h2
+        className="text-3xl font-bold mb-2 flex items-center gap-3"
+        style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}
+      >
+        {/* Inline house icon for mobile */}
+        <span className="inline-block md:hidden align-middle mr-2">
+          <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="24" fill="black"/>
+            <rect x="17" y="26" width="14" height="8" rx="2" fill="white"/>
+            <path d="M12 27L24 16L36 27" stroke="white" strokeWidth="2.5" strokeLinejoin="round" fill="none"/>
+          </svg>
+        </span>
+        Select Your Role
+      </h2>
+      <p className="text-base text-gray-600 mb-8" style={{ fontFamily: '"Outfit", sans-serif' }}>
+        Choose how you want to use RentRight. This helps us personalize your experience.
+      </p>
+      <div className="flex flex-col gap-6">
+        <button
+          onClick={() => handleRoleSelection('tenant')}
+          disabled={selectedRole === 'tenant'}
+          className={`
+            group flex items-center gap-4 rounded-2xl px-6 py-5 border-2 transition
+            ${selectedRole === 'tenant'
+              ? 'border-[#FF6A2B] bg-orange-50 shadow-xl'
+              : 'border-transparent bg-white hover:border-[#FF6A2B] hover:bg-orange-50 shadow'}
+          `}
+          style={{ fontFamily: '"Outfit", sans-serif' }}
+        >
+          <span
+            className="rounded-full flex items-center justify-center"
+            style={{
+              background: '#FF6A2B',
+              width: 44,
+              height: 44,
+            }}
+          >
+            <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-4 16-4 16 0"/>
+            </svg>
+          </span>
+          <span>
+            <div className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: '"Cyber", sans-serif' }}>
+              I'm a Tenant
+            </div>
+            <div className="text-sm text-gray-500">Looking for a place to rent</div>
+          </span>
+        </button>
+
+        <button
+          onClick={() => handleRoleSelection('landlord')}
+          disabled={selectedRole === 'landlord'}
+          className={`
+            group flex items-center gap-4 rounded-2xl px-6 py-5 border-2 transition
+            ${selectedRole === 'landlord'
+              ? 'border-[#FF6A2B] bg-orange-50 shadow-xl'
+              : 'border-transparent bg-white hover:border-[#FF6A2B] hover:bg-orange-50 shadow'}
+          `}
+          style={{ fontFamily: '"Outfit", sans-serif' }}
+        >
+          <span
+            className="rounded-full flex items-center justify-center"
+            style={{
+              background: '#FF6A2B',
+              width: 44,
+              height: 44,
+            }}
+          >
+            <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" strokeLinejoin="round">
+              <rect x="6" y="10" width="12" height="8" rx="2"/>
+              <path d="M6 14L12 8L18 14"/>
+            </svg>
+          </span>
+          <span>
+            <div className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: '"Cyber", sans-serif' }}>
+              I'm a Landlord
+            </div>
+            <div className="text-sm text-gray-500">I have properties to rent</div>
+          </span>
+        </button>
+      </div>
+      {selectedRole && (
+        <div className="flex items-center mt-8 text-sm text-gray-500">
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Preparing your {selectedRole} dashboard...
+        </div>
+      )}
+    </div>
+  </div>
+</DialogContent>
+
+
+
+      </Dialog>
+    );
+  }
+
+  // User has role but shouldn't see this on homepage - they should be redirected
+  return null;
 };
 
 export default CivicAuthButton;
