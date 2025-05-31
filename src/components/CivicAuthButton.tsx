@@ -46,11 +46,7 @@ const CivicAuthButton = () => {
     try {
       await signIn();
     } catch (error) {
-      toast({
-        title: "Sign-in failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
+      console.log('Sign-in error:', error);
     } finally {
       setIsSigningIn(false);
     }
