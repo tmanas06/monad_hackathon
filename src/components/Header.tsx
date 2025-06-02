@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Home, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from './theme-toggle';
+import CivicAuthButton from './CivicAuthButton';
 
 const Header = () => {
   return (
@@ -49,9 +50,11 @@ const Header = () => {
             <Search className="h-4 w-4" />
             <span>Search</span>
           </Button>
-          <Button className="bg-rent-green-600 hover:bg-rent-green-700 text-white">
-            Get Started
-          </Button>
+          <CivicAuthButton className="bg-rent-green-600 hover:bg-rent-green-700 text-white"
+            buttonText="Get Started"
+            signedInText="Get Started"
+            signingInText="Getting Started..."
+          />
         </div>
       </div>
     </header>
