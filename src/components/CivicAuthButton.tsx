@@ -1,14 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Shield, User, Building, Loader2,Home } from 'lucide-react';
+import { Shield, User, Building, Loader2, Home } from 'lucide-react';
 import { useUser } from '@civic/auth-web3/react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const ACCENT = "#FF6A2B"; // Orange accent
 
-const CivicAuthButton = () => {
+interface CivicAuthButtonProps {
+  buttonText?: string;
+  signedInText?: string;
+  signingInText?: string;
+  className?: string;
+}
+
+const CivicAuthButton = ({
+  buttonText = "Get Verified with Civic",
+  signedInText = "Get Verified with Civic",
+  signingInText = "Signing in with Civic...",
+  className = ""
+}: CivicAuthButtonProps) => {
   const [userRole, setUserRole] = useState<'tenant' | 'landlord' | null>(null);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -116,18 +128,18 @@ const CivicAuthButton = () => {
         size="lg"
         onClick={handleSignIn}
         disabled={isSigningIn}
-        className="rounded-full px-8 py-4 bg-black text-white hover:bg-neutral-800 transition disabled:opacity-70"
+        className={`rounded-full px-8 py-4 bg-black text-white hover:bg-neutral-800 transition disabled:opacity-70 ${className}`}
         style={{ fontFamily: '"Outfit", sans-serif' }}
       >
         {isSigningIn ? (
           <>
             <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            Signing in with Civic...
+            {signingInText}
           </>
         ) : (
           <>
             <Shield className="h-5 w-5 mr-2" />
-            Get Verified with Civic
+            {buttonText}
           </>
         )}
       </Button>
