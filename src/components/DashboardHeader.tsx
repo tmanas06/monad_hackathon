@@ -1,7 +1,7 @@
 import '../fonts.css';
 import { Button } from '@/components/ui/button';
 import { Home, LogOut, User, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '@civic/auth-web3/react';
 import {
   DropdownMenu,
@@ -18,6 +18,11 @@ interface DashboardHeaderProps {
 
 const DashboardHeader = ({ title, userRole }: DashboardHeaderProps) => {
   const { user, signOut } = useUser();
+  const navigate = useNavigate();
+
+  const handleSettings = () => {
+    navigate(`/${userRole}/settings`);
+  };
 
   return (
     <header className="bg-[#FAF6F2]/95 backdrop-blur-sm border-b border-neutral-200 sticky top-0 z-40">
@@ -67,7 +72,7 @@ const DashboardHeader = ({ title, userRole }: DashboardHeaderProps) => {
               </p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSettings}>
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>

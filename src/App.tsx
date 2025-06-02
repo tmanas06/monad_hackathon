@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TenantDashboard from "./pages/TenantDashboard";
 import LandlordDashboard from "./pages/LandlordDashboard";
+import TenantSettingsPage from "./pages/tenant/SettingsPage";
+import LandlordSettingsPage from "./pages/landlord/SettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
               <Route path="/tenants" element={<TenantDashboard />} />
               <Route path="/landlords" element={<LandlordDashboard />} />
+              <Route path="/tenant/settings" element={<TenantSettingsPage />} />
+              <Route path="/landlord/settings" element={<LandlordSettingsPage />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
