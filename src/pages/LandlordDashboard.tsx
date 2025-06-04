@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Plus, Building, Users, DollarSign, FileText, Shield, Lock, CheckCircle, Home, X } from 'lucide-react';
+import { Plus, Building, Users, FileText, Shield, Lock, CheckCircle, Home, X, Sparkles } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { userHasWallet } from '@civic/auth-web3';
@@ -212,57 +212,30 @@ const LandlordDashboard = () => {
   if (!userContext.user) return null;
 
   return (
-    <div className="min-h-screen bg-[#FAF6F2]">
+    <div className="min-h-screen bg-gradient-to-br from-[#f8f6f1] via-[#fffdfa] to-[#ece7de]">
       <DashboardHeader title="Landlord Dashboard" userRole="landlord" />
       <main className="max-w-7xl mx-auto px-8 py-12">
         {/* Header Section */}
         <div className="flex justify-between items-start mb-12">
           <div>
-            <h1 className="text-5xl font-bold mb-4" style={{ fontFamily: '"Cyber", sans-serif' }}>
+            <h1 className="text-5xl font-bold mb-4" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
               Landlord Dashboard
             </h1>
-            <p className="text-lg text-slate-600" style={{ fontFamily: '"Outfit", sans-serif' }}>
+            <p className="text-lg text-black/70" style={{ fontFamily: '"Outfit", sans-serif' }}>
               {isVerified ? "Manage properties and connect with tenants" : "Complete verification to unlock features"}
             </p>
           </div>
-          {/* Role Switcher */}
-          <Card className="w-64 bg-white/90 backdrop-blur-sm border border-slate-200">
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-3" style={{ fontFamily: '"Outfit", sans-serif' }}>
-                Switch Dashboard
-              </h3>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-orange-50 border-orange-200"
-                  disabled
-                >
-                  <Building className="h-4 w-4 mr-2" />
-                  Landlord
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => navigate('/tenants')}
-                >
-                  <Home className="h-4 w-4 mr-2" />
-                  Tenant
-                  {isVerified && <CheckCircle className="h-4 w-4 ml-auto text-green-500" />}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
         {/* Verification Status Banner */}
         {isVerified && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-8">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+          <div className="bg-gradient-to-r from-[#e6e1d9] via-[#f8f6f1] to-[#ece7de] border border-black/10 rounded-2xl p-6 mb-10 shadow">
+            <div className="flex items-center gap-4">
+              <CheckCircle className="h-7 w-7 text-green-600" />
               <div>
-                <p className="font-semibold text-green-800" style={{ fontFamily: '"Outfit", sans-serif' }}>
+                <p className="font-semibold text-black" style={{ fontFamily: '"Outfit", sans-serif' }}>
                   Identity Verified
                 </p>
-                <p className="text-sm text-green-600">
+                <p className="text-sm text-black/60">
                   All landlord features are now unlocked
                 </p>
               </div>
@@ -272,68 +245,94 @@ const LandlordDashboard = () => {
         {/* Main Content */}
         {isVerified === false ? (
           <div className="flex items-center justify-center min-h-[60vh]">
-            <Card className="max-w-2xl w-full border-2 border-orange-200">
-              <CardContent className="p-12 text-center">
-                <div className="mb-8">
-                  <div className="w-24 h-24 mx-auto mb-6 bg-orange-500 rounded-full flex items-center justify-center">
-                    <Lock className="h-12 w-12 text-white" />
+            <div className="max-w-3xl w-full p-16 rounded-3xl border border-black/10 bg-gradient-to-br from-[#f8f6f1] to-[#ece7de] shadow-xl">
+              <div className="text-center">
+                <div className="mb-12">
+                  <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-black flex items-center justify-center shadow-lg">
+                    <Lock className="h-16 w-16 text-white" />
                   </div>
-                  <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: '"Cyber", sans-serif' }}>
-                    Verify to Access Features
+                  <h2 className="text-4xl font-bold mb-6 text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
+                    Verify to Start Listing
                   </h2>
+                  <p className="text-xl text-black/60 leading-relaxed mb-12 max-w-2xl mx-auto" style={{ fontFamily: '"Outfit", sans-serif' }}>
+                    To keep tenants safe, we require landlord verification. Complete this one-time process to unlock all features.
+                  </p>
+                </div>
+                {/* Current verification method */}
+                <div className="mb-12">
+                  <h3 className="text-lg font-semibold text-black mb-4" style={{ fontFamily: '"Outfit", sans-serif' }}>
+                    Current Verification Method
+                  </h3>
                   <Button
+                    size="lg"
                     onClick={() => setShowVerificationDialog(true)}
-                    className="px-8 py-4 text-lg rounded-full bg-orange-500 hover:bg-orange-600"
+                    className="px-12 py-4 text-lg font-semibold rounded-2xl bg-black hover:bg-neutral-900 text-white transition-all duration-300 hover:shadow-lg"
+                    style={{ fontFamily: '"Outfit", sans-serif' }}
                   >
-                    <Shield className="h-5 w-5 mr-3" />
+                    <Shield className="h-6 w-6 mr-3" />
                     Verify with Aadhar
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+                {/* Future Civic Pass emphasis */}
+                <div className="p-8 rounded-2xl border-2 border-dashed border-black/10 bg-gradient-to-br from-[#fffdfa] to-[#ece7de]">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Sparkles className="h-6 w-6 text-black/60" />
+                    <h3 className="text-2xl font-bold text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
+                      Coming Soon: Civic Pass
+                    </h3>
+                  </div>
+                  <p className="text-lg text-black/60 leading-relaxed" style={{ fontFamily: '"Outfit", sans-serif' }}>
+                    Enhanced verification with video selfie, government ID validation, and blockchain-based identity credentials for maximum security and trust.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         ) : isVerified === true ? (
           <>
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <Card className="border border-slate-200">
-                <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+              <Card className="rounded-2xl border-0 shadow bg-gradient-to-br from-[#fffdfa] to-[#ece7de]">
+                <CardContent className="p-7">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-sm text-slate-600">Properties</p>
-                      <p className="text-2xl font-bold">{properties.length}</p>
+                      <p className="text-sm text-black/60">Properties</p>
+                      <p className="text-2xl font-bold text-black">{properties.length}</p>
                     </div>
-                    <Building className="h-8 w-8 text-orange-500" />
+                    <Building className="h-8 w-8 text-black/60" />
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border border-slate-200">
-                <CardContent className="p-6">
+              <Card className="rounded-2xl border-0 shadow bg-gradient-to-br from-[#fffdfa] to-[#ece7de]">
+                <CardContent className="p-7">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-sm text-slate-600">Active Tenants</p>
-                      <p className="text-2xl font-bold">{activeTenants}</p>
+                      <p className="text-sm text-black/60">Active Tenants</p>
+                      <p className="text-2xl font-bold text-black">{activeTenants}</p>
                     </div>
-                    <Users className="h-8 w-8 text-green-500" />
+                    <Users className="h-8 w-8 text-black/60" />
                   </div>
                 </CardContent>
               </Card>
               {/* Add more stat cards as needed */}
             </div>
             {/* Property Management Section */}
-            <div className="mb-8">
+            <div className="mb-12">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold" style={{ fontFamily: '"Cyber", sans-serif' }}>
+                <h2 className="text-2xl font-bold" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
                   Your Properties
                 </h2>
-                <Button onClick={() => setShowAddPropertyDialog(true)}>
+                <Button
+                  onClick={() => setShowAddPropertyDialog(true)}
+                  className="bg-black hover:bg-neutral-900 text-white rounded-xl px-6 py-2 font-semibold"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Property
                 </Button>
               </div>
               {/* Properties List */}
               {properties.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {properties.map(property => (
                     <PropertyCard
                       key={property.id}
@@ -358,20 +357,20 @@ const LandlordDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-500">No properties listed yet</p>
+                <p className="text-black/50">No properties listed yet</p>
               )}
             </div>
           </>
         ) : (
           <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black" />
           </div>
         )}
         {/* Add Property Dialog */}
         <Dialog open={showAddPropertyDialog} onOpenChange={setShowAddPropertyDialog}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
             <DialogHeader>
-              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif' }}>
+              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
                 Add New Property
               </DialogTitle>
             </DialogHeader>
@@ -392,7 +391,7 @@ const LandlordDashboard = () => {
                 <div className="font-medium mb-2">Tags</div>
                 <div className="flex flex-wrap gap-2">
                   {TAG_OPTIONS.map(tag => (
-                    <label key={tag} className="flex items-center gap-1 text-xs bg-slate-100 px-2 py-1 rounded cursor-pointer">
+                    <label key={tag} className="flex items-center gap-1 text-xs bg-black/5 px-2 py-1 rounded cursor-pointer">
                       <input
                         type="checkbox"
                         checked={propertyTags.includes(tag)}
@@ -410,7 +409,7 @@ const LandlordDashboard = () => {
                 <div className="font-medium mb-2">Photos</div>
                 <div className="flex flex-wrap gap-3 mb-2">
                   {propertyPhotos.map((url, idx) => (
-                    <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-slate-200">
+                    <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
                       <img src={url} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
                       <button
                         className="absolute top-1 right-1 bg-white/80 hover:bg-white rounded-full p-1"
@@ -421,7 +420,7 @@ const LandlordDashboard = () => {
                       </button>
                     </div>
                   ))}
-                  <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-slate-300 rounded cursor-pointer hover:border-blue-400 transition">
+                  <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-black/10 rounded cursor-pointer hover:border-black/30 transition">
                     <input
                       type="file"
                       accept="image/*"
@@ -439,38 +438,40 @@ const LandlordDashboard = () => {
                           // Optionally show toast here
                         } finally {
                           setPhotoUploading(false);
-                          e.target.value = ""; // Reset input
+                          e.target.value = "";
                         }
                       }}
                     />
                     {photoUploading ? (
-                      <span className="text-xs text-slate-500">Uploading...</span>
+                      <span className="text-xs text-black/60">Uploading...</span>
                     ) : (
-                      <span className="text-2xl text-slate-400">+</span>
+                      <span className="text-2xl text-black/30">+</span>
                     )}
                   </label>
                 </div>
-                <div className="text-xs text-slate-500">You can upload multiple photos. Click × to remove any.</div>
+                <div className="text-xs text-black/50">You can upload multiple photos. Click × to remove any.</div>
               </div>
               <div>
                 <div className="font-medium mb-2">Description</div>
                 <textarea
-                  className="w-full border border-slate-300 rounded p-2"
+                  className="w-full border border-black/10 rounded p-2"
                   value={propertyDescription}
                   onChange={e => setPropertyDescription(e.target.value)}
                   rows={4}
                   placeholder="Describe your property, highlights, etc."
                 />
               </div>
-              <Button onClick={handleAddProperty}>Add Property</Button>
+              <Button className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2" onClick={handleAddProperty}>Add Property</Button>
             </div>
           </DialogContent>
         </Dialog>
         {/* Edit Property Dialog */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
             <DialogHeader>
-              <DialogTitle className="text-2xl">Edit Property</DialogTitle>
+              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
+                Edit Property
+              </DialogTitle>
             </DialogHeader>
             {editingProperty && (
               <div className="space-y-4">
@@ -490,7 +491,7 @@ const LandlordDashboard = () => {
                   <div className="font-medium mb-2">Tags</div>
                   <div className="flex flex-wrap gap-2">
                     {TAG_OPTIONS.map(tag => (
-                      <label key={tag} className="flex items-center gap-1 text-xs bg-slate-100 px-2 py-1 rounded cursor-pointer">
+                      <label key={tag} className="flex items-center gap-1 text-xs bg-black/5 px-2 py-1 rounded cursor-pointer">
                         <input
                           type="checkbox"
                           checked={editingProperty.tags?.includes(tag)}
@@ -508,7 +509,7 @@ const LandlordDashboard = () => {
                   <div className="font-medium mb-2">Photos</div>
                   <div className="flex flex-wrap gap-3 mb-2">
                     {editingProperty.photos?.map((url: string, idx: number) => (
-                      <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-slate-200">
+                      <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
                         <img src={url} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
                         <button
                           className="absolute top-1 right-1 bg-white/80 hover:bg-white rounded-full p-1"
@@ -522,7 +523,7 @@ const LandlordDashboard = () => {
                         </button>
                       </div>
                     ))}
-                    <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-slate-300 rounded cursor-pointer hover:border-blue-400 transition">
+                    <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-black/10 rounded cursor-pointer hover:border-black/30 transition">
                       <input
                         type="file"
                         accept="image/*"
@@ -548,34 +549,34 @@ const LandlordDashboard = () => {
                         }}
                       />
                       {photoUploading ? (
-                        <span className="text-xs text-slate-500">Uploading...</span>
+                        <span className="text-xs text-black/60">Uploading...</span>
                       ) : (
-                        <span className="text-2xl text-slate-400">+</span>
+                        <span className="text-2xl text-black/30">+</span>
                       )}
                     </label>
                   </div>
-                  <div className="text-xs text-slate-500">You can upload multiple photos. Click × to remove any.</div>
+                  <div className="text-xs text-black/50">You can upload multiple photos. Click × to remove any.</div>
                 </div>
                 <div>
                   <div className="font-medium mb-2">Description</div>
                   <textarea
-                    className="w-full border border-slate-300 rounded p-2"
+                    className="w-full border border-black/10 rounded p-2"
                     value={editingProperty.description || ""}
                     onChange={e => setEditingProperty({ ...editingProperty, description: e.target.value })}
                     rows={4}
                     placeholder="Describe your property, highlights, etc."
                   />
                 </div>
-                <Button onClick={handleEditProperty}>Save Changes</Button>
+                <Button className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2" onClick={handleEditProperty}>Save Changes</Button>
               </div>
             )}
           </DialogContent>
         </Dialog>
         {/* Verification Dialog */}
         <Dialog open={showVerificationDialog} onOpenChange={setShowVerificationDialog}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
             <DialogHeader>
-              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif' }}>
+              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
                 Verify with Aadhar
               </DialogTitle>
             </DialogHeader>
@@ -585,7 +586,8 @@ const LandlordDashboard = () => {
                 value={aadharNumber}
                 onChange={(e) => setAadharNumber(e.target.value.replace(/\D/g, '').slice(0, 12))}
               />
-              <Button 
+              <Button
+                className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2"
                 onClick={handleAadharVerification}
                 disabled={isVerifying || aadharNumber.length !== 12}
               >

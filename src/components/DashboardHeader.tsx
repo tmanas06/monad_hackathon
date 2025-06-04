@@ -71,49 +71,69 @@ const DashboardHeader = ({ title, userRole, isVerified }: DashboardHeaderProps) 
         </h1>
 
         {/* User Profile Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex items-center space-x-2 rounded-full border-neutral-300 hover:bg-neutral-100"
-              style={{ fontFamily: '"Outfit", sans-serif' }}
-            >
-              <div className="bg-gradient-to-r from-blue-500 to-green-500 w-8 h-8 rounded-full flex items-center justify-center">
-                <User className="h-4 w-4 text-white" />
-              </div>
-              <span className="hidden md:block font-medium">
-                {user?.name || user?.email || 'User'}
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <div className="flex flex-col space-y-1 p-2">
-              <p className="text-sm font-medium">{user?.name || user?.email}</p>
-              <p className="text-xs text-muted-foreground capitalize">
-                {userRole} Account
-              </p>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSwitchDashboard}>
-              <Building className="mr-2 h-4 w-4" />
-              Switch to {userRole === 'tenant' ? 'Landlord' : 'Tenant'} Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleMyApplications}>
-              <FileText className="mr-2 h-4 w-4" />
-              My Applications
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSettings}>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut} className="text-red-600">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+       <DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <button
+      className="flex items-center gap-3 rounded-full bg-black px-6 py-2 shadow-lg focus:outline-none transition hover:scale-[1.03]"
+      style={{
+        fontFamily: '"Outfit", sans-serif',
+        minHeight: '48px',
+        minWidth: '220px',
+      }}
+    >
+      <div className="bg-gradient-to-br from-[#e6e1d9] to-[#f8f6f1] w-9 h-9 rounded-full flex items-center justify-center shadow">
+        <User className="h-5 w-5 text-black/80" />
+      </div>
+      <span className="text-white font-semibold text-base truncate" style={{fontFamily: '"Outfit", sans-serif'}}>
+        {user?.name || user?.email || 'User'}
+      </span>
+    </button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent
+    align="end"
+    className="w-72 bg-black text-white rounded-2xl shadow-2xl p-0 border-0"
+    style={{fontFamily: '"Outfit", sans-serif'}}
+  >
+    <div className="flex flex-col space-y-1 px-6 pt-5 pb-2">
+      <p className="text-lg font-bold truncate">{user?.name || user?.email}</p>
+      <p className="text-xs text-[#e6e1d9] capitalize">
+        {userRole} Account
+      </p>
+    </div>
+    <DropdownMenuSeparator className="bg-[#232323]" />
+    <DropdownMenuItem
+      onClick={handleSwitchDashboard}
+      className="flex items-center gap-3 px-6 py-3 text-base hover:bg-[#232323] transition"
+    >
+      <Building className="h-5 w-5 text-white" />
+      Switch to {userRole === 'tenant' ? 'Landlord' : 'Tenant'} Dashboard
+    </DropdownMenuItem>
+    <DropdownMenuItem
+      onClick={handleMyApplications}
+      className="flex items-center gap-3 px-6 py-3 text-base hover:bg-[#232323] transition"
+    >
+      <FileText className="h-5 w-5 text-white" />
+      My Applications
+    </DropdownMenuItem>
+    <DropdownMenuSeparator className="bg-[#232323]" />
+    <DropdownMenuItem
+      onClick={handleSettings}
+      className="flex items-center gap-3 px-6 py-3 text-base hover:bg-[#232323] transition"
+    >
+      <Settings className="h-5 w-5 text-white" />
+      Settings
+    </DropdownMenuItem>
+    <DropdownMenuSeparator className="bg-[#232323]" />
+    <DropdownMenuItem
+      onClick={signOut}
+      className="flex items-center gap-3 px-6 py-3 text-base text-red-500 hover:bg-[#232323] transition"
+    >
+      <LogOut className="h-5 w-5 text-red-500" />
+      Sign Out
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+
       </div>
     </header>
   );
