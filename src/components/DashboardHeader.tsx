@@ -1,6 +1,6 @@
 import '../fonts.css';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, User, Settings } from 'lucide-react';
+import { Home, LogOut, User, Settings, Building, FileText, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '@civic/auth-web3/react';
 import {
@@ -14,14 +14,33 @@ import {
 interface DashboardHeaderProps {
   title: string;
   userRole: 'tenant' | 'landlord';
+  isVerified?: boolean; // pass this from dashboard if you want to show a verified badge
 }
 
-const DashboardHeader = ({ title, userRole }: DashboardHeaderProps) => {
+const DashboardHeader = ({ title, userRole, isVerified }: DashboardHeaderProps) => {
   const { user, signOut } = useUser();
   const navigate = useNavigate();
 
   const handleSettings = () => {
     navigate(`/${userRole}/settings`);
+  };
+
+  // Dropdown: Switch Dashboard
+  const handleSwitchDashboard = () => {
+    if (userRole === 'tenant') {
+      navigate('/landlords');
+    } else {
+      navigate('/tenants');
+    }
+  };
+
+  // Dropdown: My Applications
+  const handleMyApplications = () => {
+    if (userRole === 'tenant') {
+      navigate('/tenants/applications');
+    } else {
+      navigate('/landlords/applications');
+    }
   };
 
   return (
@@ -42,10 +61,13 @@ const DashboardHeader = ({ title, userRole }: DashboardHeaderProps) => {
 
         {/* Dashboard Title */}
         <h1
-          className="text-xl font-semibold text-neutral-800"
+          className="text-xl font-semibold text-neutral-800 flex items-center gap-2"
           style={{ fontFamily: '"Outfit", sans-serif' }}
         >
           {title}
+          {isVerified && (
+            <CheckCircle className="h-5 w-5 text-green-600" aria-label="Verified" />
+          )}
         </h1>
 
         {/* User Profile Dropdown */}
@@ -71,6 +93,15 @@ const DashboardHeader = ({ title, userRole }: DashboardHeaderProps) => {
                 {userRole} Account
               </p>
             </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSwitchDashboard}>
+              <Building className="mr-2 h-4 w-4" />
+              Switch to {userRole === 'tenant' ? 'Landlord' : 'Tenant'} Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleMyApplications}>
+              <FileText className="mr-2 h-4 w-4" />
+              My Applications
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSettings}>
               <Settings className="mr-2 h-4 w-4" />

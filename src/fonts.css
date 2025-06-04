@@ -11,3 +11,15 @@
   font-weight: 700;
   font-style: normal;
 }
+@font-face {
+  font-family: 'midlux';
+  src: url('/fonts/MidlandluxuryBold-9Yxqy.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'lux';
+  src: url('fonts/PluvixLuxuryFontRegular-2vG8d.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}

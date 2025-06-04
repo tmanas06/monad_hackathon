@@ -11,7 +11,7 @@ import TenantDashboard from "./pages/TenantDashboard";
 import LandlordDashboard from "./pages/LandlordDashboard";
 import TenantSettingsPage from "./pages/tenant/SettingsPage";
 import LandlordSettingsPage from "./pages/landlord/SettingsPage";
-
+import PropertyDetails from "./pages/PropertyDetails";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -29,6 +29,7 @@ const App = () => (
               <Route path="/landlords" element={<LandlordDashboard />} />
               <Route path="/tenant/settings" element={<TenantSettingsPage />} />
               <Route path="/landlord/settings" element={<LandlordSettingsPage />} />
+              <Route path="/properties/:id" element={<PropertyDetails />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
