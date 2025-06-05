@@ -3,7 +3,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { doc, getDoc, addDoc, collection, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, serverTimestamp, updateDoc, query, where, getDocs } from "firebase/firestore";
 import { useUser } from '@civic/auth-web3/react';
 import { userHasWallet } from '@civic/auth-web3';
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,7 @@ export default function PropertyDetails() {
   const [avgRating, setAvgRating] = useState<number | null>(null);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [applicationId, setApplicationId] = useState<string | null>(null);
 
   const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
 
@@ -104,18 +105,41 @@ export default function PropertyDetails() {
     fetchVerificationStatus();
   }, [user, walletAddress]);
 
+  // Check if tenant has already applied for this property
+  useEffect(() => {
+    if (!user || !walletAddress || !property?.id) return;
+    const checkApplication = async () => {
+      try {
+        const q = query(
+          collection(db, "applications"),
+          where("propertyId", "==", property.id),
+          where("tenantWallet", "==", walletAddress)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          setApplied(true);
+          setApplicationId(snap.docs[0].id);
+        }
+      } catch (error) {
+        console.error("Error checking application:", error);
+      }
+    };
+    checkApplication();
+  }, [user, walletAddress, property?.id]);
+
   const handleApply = async () => {
     if (!user || !property || !walletAddress) return;
     setApplying(true);
     try {
-      await addDoc(collection(db, "applications"), {
+      const docRef = await addDoc(collection(db, "applications"), {
         propertyId: property.id,
         tenantWallet: walletAddress,
         landlordWallet: property.landlordWallet,
-        status: "pending",
+        status: "Under Review",
         appliedAt: serverTimestamp()
       });
       setApplied(true);
+      setApplicationId(docRef.id);
     } catch (error) {
       alert("Failed to submit application. Please try again.");
     } finally {
@@ -396,19 +420,28 @@ export default function PropertyDetails() {
                   isVerified ? (
                     <div>
                       <p className="text-black/80 mb-4">
-                        Submit your application to get in touch with the landlord.
+                        {applied ? "You have already applied for this property." : "Submit your application to get in touch with the landlord."}
                       </p>
-                      <Button
-                        disabled={applied || applying}
-                        onClick={handleApply}
-                        className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
-                      >
-                        {applying ? "Submitting..." : applied ? "Application Submitted" : "Apply Now"}
-                      </Button>
+                      {applied ? (
+                        <Button
+                          className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
+                          onClick={() => navigate(`/my-applications`)}
+                        >
+                          View My Applications
+                        </Button>
+                      ) : (
+                        <Button
+                          disabled={applying}
+                          onClick={handleApply}
+                          className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
+                        >
+                          {applying ? "Submitting..." : "Apply Now"}
+                        </Button>
+                      )}
                       {applied && (
                         <div className="flex items-center gap-2 text-green-600 mt-3 p-2 bg-green-50 rounded-lg">
                           <CheckCircle className="h-4 w-4" />
-                          <span className="text-sm">Your application has been sent to the landlord.</span>
+                          <span className="text-sm">Your application status: Under Review</span>
                         </div>
                       )}
                     </div>

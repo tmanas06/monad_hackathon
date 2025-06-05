@@ -37,7 +37,7 @@ const DashboardHeader = ({ title, userRole, isVerified }: DashboardHeaderProps) 
   // Dropdown: My Applications
   const handleMyApplications = () => {
     if (userRole === 'tenant') {
-      navigate('/tenants/applications');
+      navigate('/my-applications');
     } else {
       navigate('/landlords/applications');
     }

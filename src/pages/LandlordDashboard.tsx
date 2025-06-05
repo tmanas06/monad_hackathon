@@ -15,6 +15,7 @@ import { userHasWallet } from '@civic/auth-web3';
 import PropertyCard from '@/components/PropertyCard';
 import { uploadFileToIPFS } from "@/utils/pinata";
 import { convertIPFSURL } from "@/utils/ipfs";
+import SimpleEditor from 'react-simple-wysiwyg'; // Add this import at the top
 
 const TAG_OPTIONS = [
   "family_friendly", "bachelor_friendly", "student_friendly", "work_drive_friendly"
@@ -368,37 +369,74 @@ const LandlordDashboard = () => {
         )}
         {/* Add Property Dialog */}
         <Dialog open={showAddPropertyDialog} onOpenChange={setShowAddPropertyDialog}>
-          <DialogContent className="max-w-lg rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
-            <DialogHeader>
-              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
-                Add New Property
-              </DialogTitle>
+<DialogContent
+  className="w-full max-w-3xl rounded-3xl border-0 shadow-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de]"
+  style={{
+    maxHeight: '90vh',
+    margin: '0 auto',
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    // DO NOT set alignItems: 'center'
+  }}
+  >            <DialogHeader className="flex-shrink-0 pt-6 px-6">
+    <DialogTitle
+      className="text-3xl mb-6 text-center"
+      style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}
+    >
+      Add New Property
+    </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <Input placeholder="Property Title" value={propertyTitle} onChange={e => setPropertyTitle(e.target.value)} />
-              <Input type="number" placeholder="Monthly Rent (₹)" value={propertyRent} onChange={e => setPropertyRent(e.target.value)} />
-              <div className="grid grid-cols-2 gap-4">
-                <Input placeholder="City" value={propertyCity} onChange={e => setPropertyCity(e.target.value)} />
-                <Input placeholder="Pincode" value={propertyPincode} onChange={e => setPropertyPincode(e.target.value)} />
+            <form
+      className="w-full flex flex-col gap-6"
+      style={{
+        maxWidth: 700,
+        margin: '0 auto',
+      }}
+      onSubmit={e => {
+        e.preventDefault();
+        handleAddProperty();
+      }}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input placeholder="Property Title" value={propertyTitle} onChange={e => setPropertyTitle(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+          required/>
+              <Input type="number" placeholder="Monthly Rent (₹)" value={propertyRent} onChange={e => setPropertyRent(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+          required/>
+          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input placeholder="City" value={propertyCity} onChange={e => setPropertyCity(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+          required/>
+                <Input placeholder="Pincode" value={propertyPincode} onChange={e => setPropertyPincode(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+          required />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input type="number" placeholder="Bedrooms" value={propertyBedrooms} onChange={e => setPropertyBedrooms(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"/>
+                <Input type="number" placeholder="Bathrooms" value={propertyBathrooms} onChange={e => setPropertyBathrooms(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"/>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Input type="number" placeholder="Bedrooms" value={propertyBedrooms} onChange={e => setPropertyBedrooms(e.target.value)} />
-                <Input type="number" placeholder="Bathrooms" value={propertyBathrooms} onChange={e => setPropertyBathrooms(e.target.value)} />
-              </div>
-              <Input type="number" placeholder="Area (sqft)" value={propertyAreaSqft} onChange={e => setPropertyAreaSqft(e.target.value)} />
-              <Input type="number" placeholder="Rating (1-5)" value={propertyRating} onChange={e => setPropertyRating(e.target.value)} min={1} max={5} step={0.1} />
-              <div>
-                <div className="font-medium mb-2">Tags</div>
+              
+              <Input type="number" placeholder="Area (sqft)" value={propertyAreaSqft} onChange={e => setPropertyAreaSqft(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"/>
+               <div>
+        <div className="font-medium mb-2 text-black">Tags</div>
                 <div className="flex flex-wrap gap-2">
                   {TAG_OPTIONS.map(tag => (
-                    <label key={tag} className="flex items-center gap-1 text-xs bg-black/5 px-2 py-1 rounded cursor-pointer">
-                      <input
+ <label
+              key={tag}
+              className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full cursor-pointer
+                ${propertyTags.includes(tag)
+                  ? "bg-black text-white"
+                  : "bg-black/10 text-black"}
+              `}
+              style={{ fontFamily: '"Outfit", sans-serif' }}
+            >
+                        <input
                         type="checkbox"
                         checked={propertyTags.includes(tag)}
                         onChange={e => {
                           if (e.target.checked) setPropertyTags([...propertyTags, tag]);
                           else setPropertyTags(propertyTags.filter(t => t !== tag));
                         }}
+                        className="accent-black"
                       />
                       {tag.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </label>
@@ -406,7 +444,7 @@ const LandlordDashboard = () => {
                 </div>
               </div>
               <div>
-                <div className="font-medium mb-2">Photos</div>
+                <div className="font-medium mb-2 text-black">Photos</div>
                 <div className="flex flex-wrap gap-3 mb-2">
                   {propertyPhotos.map((url, idx) => (
                     <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
@@ -420,7 +458,7 @@ const LandlordDashboard = () => {
                       </button>
                     </div>
                   ))}
-                  <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-black/10 rounded cursor-pointer hover:border-black/30 transition">
+<label className="w-24 h-24 flex items-center justify-center border-2 border-dashed border-black/10 rounded-xl cursor-pointer hover:border-black/30 transition">
                     <input
                       type="file"
                       accept="image/*"
@@ -443,26 +481,40 @@ const LandlordDashboard = () => {
                       }}
                     />
                     {photoUploading ? (
-                      <span className="text-xs text-black/60">Uploading...</span>
-                    ) : (
-                      <span className="text-2xl text-black/30">+</span>
+<span className="text-xs text-black/60">Uploading...</span>                    ) : (
+              <span className="text-2xl text-black/30">+</span>
                     )}
                   </label>
                 </div>
                 <div className="text-xs text-black/50">You can upload multiple photos. Click × to remove any.</div>
-              </div>
+      </div>
+            {/* Description (Rich Text) */}
               <div>
-                <div className="font-medium mb-2">Description</div>
-                <textarea
-                  className="w-full border border-black/10 rounded p-2"
-                  value={propertyDescription}
-                  onChange={e => setPropertyDescription(e.target.value)}
-                  rows={4}
-                  placeholder="Describe your property, highlights, etc."
-                />
+        <div className="font-medium mb-2 text-black">Description</div>
+                 <div className="bg-black/5 rounded-xl p-2">
+          <SimpleEditor
+            value={propertyDescription}
+            onChange={e => setPropertyDescription(e.target.value)}
+            placeholder="Describe your property, highlights, etc."
+            style={{
+              minHeight: 120,
+              fontFamily: '"Outfit", sans-serif',
+              fontSize: 16,
+              background: "transparent",
+              border: "none",
+              color: "#181818",
+            }}
+          />
               </div>
-              <Button className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2" onClick={handleAddProperty}>Add Property</Button>
-            </div>
+              </div>
+<Button
+        type="submit"
+        className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 text-lg shadow-lg transition-all"
+        style={{ fontFamily: '"Outfit", sans-serif' }}
+      >
+        Add Property
+      </Button>
+             </form>
           </DialogContent>
         </Dialog>
         {/* Edit Property Dialog */}
