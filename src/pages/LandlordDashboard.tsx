@@ -317,22 +317,12 @@ fetchPendingApplications();
                   </div>
                 </CardContent>
               </Card>
-              <Card className="rounded-2xl border-0 shadow bg-gradient-to-br from-[#fffdfa] to-[#ece7de]">
-                <CardContent className="p-7">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-black/60">Active Tenants</p>
-                      <p className="text-2xl font-bold text-black">{activeTenants}</p>
-                    </div>
-                    <Users className="h-8 w-8 text-black/60" />
-                  </div>
-                </CardContent>
-              </Card>
+              
               {/* Add more stat cards as needed */}
               {/* Applications Section */}
 <div className="mb-12">
   <div className="flex justify-between items-center mb-4">
-    <h2 className="text-2xl font-bold" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
+    <h2 className="text-2xl font-bold mr-7" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
       Received Applications
     </h2>
     <Button
