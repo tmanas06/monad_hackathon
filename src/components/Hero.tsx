@@ -37,11 +37,12 @@ const Hero = () => {
 
         {/* Button */}
         <div className="mt-8">
-          <button
+          <CivicAuthButton
             className="px-8 py-3 border border-white text-white text-base rounded-full hover:bg-white hover:text-black transition-all duration-300"
-          >
-            Get Verified with Civic
-          </button>
+            buttonText="Get Verified with Civic"
+            signedInText="Get Verified with Civic"
+            signingInText="Getting Verified..."
+          />
         </div>
       </div>
     </section>
