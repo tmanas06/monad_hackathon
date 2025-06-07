@@ -13,6 +13,7 @@ import TenantSettingsPage from "./pages/tenant/SettingsPage";
 import LandlordSettingsPage from "./pages/landlord/SettingsPage";
 import PropertyDetails from "./pages/PropertyDetails";
 import MyApplications from "./pages/MyApplications";
+import ApplicationsPage from "./pages/ApplicationPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -32,6 +33,8 @@ const App = () => (
               <Route path="/landlord/settings" element={<LandlordSettingsPage />} />
               <Route path="/properties/:id" element={<PropertyDetails />} />
               <Route path="/my-applications/:id?" element={<MyApplications />} />
+              <Route path="/landlord/applications" element={<ApplicationsPage />} />
+
 
             </Routes>
           </BrowserRouter>

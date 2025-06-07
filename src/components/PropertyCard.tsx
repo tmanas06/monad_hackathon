@@ -13,7 +13,7 @@ export default function PropertyCard({
   title,
   address,
   rent,
-  rating,
+  ratings,
   bedrooms,
   bathrooms,
   areaSqft,
@@ -28,7 +28,7 @@ export default function PropertyCard({
   title: string;
   address: { area?: string; city?: string; pincode?: string };
   rent: number;
-  rating?: number;
+ratings?: { rating: number }[];
   bedrooms?: number;
   bathrooms?: number;
   areaSqft?: number;
@@ -50,8 +50,11 @@ export default function PropertyCard({
     e.stopPropagation();
     setPhotoIdx((idx) => (idx === photos.length - 1 ? 0 : idx + 1));
   };
+  const avgRating = ratings?.length
+  ? ratings.reduce((sum, r) => sum + (r.rating || 0), 0) / ratings.length
+  : null;
 
-  return (
+return (
     <div
       className="rounded-3xl shadow-xl border-0 overflow-hidden max-w-xl mx-auto transition cursor-pointer relative mb-12"
       style={{
@@ -157,8 +160,9 @@ export default function PropertyCard({
           </span>
         </div>
         <div className="flex items-center gap-2 text-yellow-500 mb-4 text-base">
-          <Star className="h-4 w-4" />
-          <span className="font-semibold">{rating ?? 'N/A'}</span>
+    <Star className="h-4 w-4" />
+    <span className="font-semibold">{typeof avgRating === 'number' ? avgRating.toFixed(1) : 'N/A'}/5</span>
+
         </div>
         <div className="flex gap-6 mb-4 text-black/80 text-base">
           {bedrooms !== undefined && <div className="flex items-center gap-2"><BedDouble className="h-4 w-4" />{bedrooms} bed</div>}

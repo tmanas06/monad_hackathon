@@ -254,7 +254,7 @@ const TenantDashboard = () => {
                     title={property.title}
                     address={property.address}
                     rent={property.rent}
-                    rating={property.rating}
+  ratings={property.ratings}
                     bedrooms={property.bedrooms}
                     bathrooms={property.bathrooms}
                     areaSqft={property.areaSqft}

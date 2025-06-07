@@ -51,6 +51,8 @@ const LandlordDashboard = () => {
   // Data
   const [properties, setProperties] = useState<any[]>([]);
   const [activeTenants, setActiveTenants] = useState<number>(0);
+  const [pendingApplications, setPendingApplications] = useState<number>(0);
+
 
   const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
 
@@ -104,6 +106,17 @@ const LandlordDashboard = () => {
       fetchProperties();
       fetchActiveTenants();
     }
+    const fetchPendingApplications = async () => {
+  const q = query(
+    collection(db, "applications"),
+    where("landlordWallet", "==", walletAddress),
+    where("status", "==", "Under Review")
+  );
+  const snap = await getDocs(q);
+  setPendingApplications(snap.size);
+};
+fetchPendingApplications();
+
   }, [isVerified, walletAddress]);
 
   const resetAddForm = () => {
@@ -316,6 +329,35 @@ const LandlordDashboard = () => {
                 </CardContent>
               </Card>
               {/* Add more stat cards as needed */}
+              {/* Applications Section */}
+<div className="mb-12">
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-2xl font-bold" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
+      Received Applications
+    </h2>
+    <Button
+      onClick={() => navigate('/landlord/applications')}
+      className="bg-black hover:bg-neutral-900 text-white rounded-xl px-6 py-2 font-semibold"
+    >
+      <FileText className="h-4 w-4 mr-2" />
+      View All Applications
+    </Button>
+  </div>
+  
+  {/* Applications Preview Card */}
+  <Card className="rounded-2xl border-0 shadow bg-gradient-to-br from-[#fffdfa] to-[#ece7de]">
+    <CardContent className="p-7">
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-sm text-black/60">Pending Applications</p>
+          <p className="text-2xl font-bold text-black">{pendingApplications}</p>
+        </div>
+        <FileText className="h-8 w-8 text-black/60" />
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
             </div>
             {/* Property Management Section */}
             <div className="mb-12">
@@ -341,7 +383,7 @@ const LandlordDashboard = () => {
                       title={property.title}
                       address={property.address}
                       rent={property.rent}
-                      rating={property.rating}
+  ratings={property.ratings}
                       bedrooms={property.bedrooms}
                       bathrooms={property.bathrooms}
                       areaSqft={property.areaSqft}
