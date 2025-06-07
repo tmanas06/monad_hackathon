@@ -1,51 +1,41 @@
 import '../fonts.css';
-import { Button } from '@/components/ui/button';
-import { Shield } from 'lucide-react';
 import CivicAuthButton from '@/components/CivicAuthButton';
-
 
 const Hero = () => {
   return (
-    <section className="relative bg-[#FAF6F2] min-h-[90vh] flex items-center px-6 md:px-0">
-      <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center md:items-start gap-12">
-        {/* Left: Headline and Text */}
-        <div className="flex-1 pt-12 md:pt-0">
-          <h1
-            className="text-5xl md:text-7xl font-bold mb-8 leading-tight"
-            style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}
-          >
-            Trusted Rentals,<br />Verified Tenants
-          </h1>
-          <p
-            className="text-lg md:text-xl text-neutral-600 mb-10 max-w-lg"
-            style={{ fontFamily: '"Outfit", sans-serif' }}
-          >
-            RentRight uses Civic Auth for secure tenant verification, making the rental process faster, safer, and more reliable for both landlords and tenants.
-          </p>
-          <CivicAuthButton />
-        </div>
+    <section
+      className="relative flex items-center justify-center min-h-[95vh] px-6 md:px-12 text-center bg-black rounded-[20px] overflow-hidden"
+      style={{
+        background: `url('/herobg.jpg') center/cover no-repeat`,
+      }}
+    >
+      {/* Subtle dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/50"></div>
 
-        {/* Right: Graphic and Image */}
-        <div className="flex-1 relative flex items-center justify-center">
-          {/* Large orange circle accent */}
-          <div className="absolute -z-10 w-72 h-72 md:w-96 md:h-96 bg-orange-400 rounded-full right-0 top-10 md:top-0 md:right-10 opacity-90"></div>
-          {/* Placeholder for user image */}
-          <div className="relative z-10 w-60 h-60 md:w-80 md:h-80 rounded-full overflow-hidden flex items-center justify-center border-8 border-white shadow-lg">
-            {/* Replace with your own image */}
-            <img
-              src="/keyhand.jpg"
-              alt="Tenant"
-              className="object-cover w-full h-full"
-            />
-          </div>
-          {/* Optional: geometric accent (SVG or CSS) */}
-          <svg
-            className="absolute left-0 top-0 md:left-10 md:top-10 w-24 h-24 text-black opacity-20"
-            fill="none"
-            viewBox="0 0 100 100"
-          >
-            <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="2" />
-          </svg>
+      {/* Content */}
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-8">
+        {/* Logo or small brand text if needed */}
+        {/* <div className="uppercase text-sm tracking-widest text-neutral-400 mb-2">Luxury Rentals</div> */}
+
+        {/* Headline */}
+        <h1
+          className="text-5xl md:text-7xl font-serif leading-tight tracking-wide text-white"
+          style={{ fontFamily: '"Playfair Display", serif' }}
+        >
+          Trusted Rentals,<br />Verified Tenants
+        </h1>
+
+        {/* Subtext */}
+        <p
+          className="text-lg md:text-xl text-neutral-200 max-w-xl"
+          style={{ fontFamily: '"Outfit", sans-serif', lineHeight: '1.7' }}
+        >
+          RentRight uses Civic Auth for secure tenant verification, making the rental process faster, safer, and more reliable for both landlords and tenants.
+        </p>
+
+        {/* Button */}
+        <div className="mt-6">
+          <CivicAuthButton />
         </div>
       </div>
     </section>

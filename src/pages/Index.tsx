@@ -24,7 +24,6 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-rent-blue-50 to-rent-green-50">
       <Header />
       <Hero />
-      <PropertyListings />
       <AboutSection />
       <div className="fixed bottom-8 right-8 z-50">
       </div>
