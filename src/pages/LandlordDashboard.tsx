@@ -519,109 +519,200 @@ const LandlordDashboard = () => {
         </Dialog>
         {/* Edit Property Dialog */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="max-w-lg rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
-            <DialogHeader>
-              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
+        <DialogContent
+  className="w-full max-w-3xl rounded-3xl border-0 shadow-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de]"
+  style={{
+    maxHeight: '90vh',
+    margin: '0 auto',
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    // DO NOT set alignItems: 'center'
+  }}
+  >            <DialogHeader className="flex-shrink-0 pt-6 px-6">
+    <DialogTitle
+      className="text-3xl mb-6 text-center"
+      style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}
+    >
                 Edit Property
               </DialogTitle>
             </DialogHeader>
             {editingProperty && (
-              <div className="space-y-4">
-                <Input placeholder="Property Title" value={editingProperty.title} onChange={e => setEditingProperty({ ...editingProperty, title: e.target.value })} />
-                <Input type="number" placeholder="Monthly Rent (₹)" value={editingProperty.rent} onChange={e => setEditingProperty({ ...editingProperty, rent: e.target.value })} />
-                <div className="grid grid-cols-2 gap-4">
-                  <Input placeholder="City" value={editingProperty.address?.city || ""} onChange={e => setEditingProperty({ ...editingProperty, address: { ...editingProperty.address, city: e.target.value } })} />
-                  <Input placeholder="Pincode" value={editingProperty.address?.pincode || ""} onChange={e => setEditingProperty({ ...editingProperty, address: { ...editingProperty.address, pincode: e.target.value } })} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input type="number" placeholder="Bedrooms" value={editingProperty.bedrooms} onChange={e => setEditingProperty({ ...editingProperty, bedrooms: e.target.value })} />
-                  <Input type="number" placeholder="Bathrooms" value={editingProperty.bathrooms} onChange={e => setEditingProperty({ ...editingProperty, bathrooms: e.target.value })} />
-                </div>
-                <Input type="number" placeholder="Area (sqft)" value={editingProperty.areaSqft} onChange={e => setEditingProperty({ ...editingProperty, areaSqft: e.target.value })} />
-                <Input type="number" placeholder="Rating (1-5)" value={editingProperty.rating} onChange={e => setEditingProperty({ ...editingProperty, rating: e.target.value })} min={1} max={5} step={0.1} />
-                <div>
-                  <div className="font-medium mb-2">Tags</div>
-                  <div className="flex flex-wrap gap-2">
-                    {TAG_OPTIONS.map(tag => (
-                      <label key={tag} className="flex items-center gap-1 text-xs bg-black/5 px-2 py-1 rounded cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={editingProperty.tags?.includes(tag)}
-                          onChange={e => {
-                            if (e.target.checked) setEditingProperty({ ...editingProperty, tags: [...(editingProperty.tags || []), tag] });
-                            else setEditingProperty({ ...editingProperty, tags: editingProperty.tags.filter((t: string) => t !== tag) });
-                          }}
-                        />
-                        {tag.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="font-medium mb-2">Photos</div>
-                  <div className="flex flex-wrap gap-3 mb-2">
-                    {editingProperty.photos?.map((url: string, idx: number) => (
-                      <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
-                        <img src={url} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
-                        <button
-                          className="absolute top-1 right-1 bg-white/80 hover:bg-white rounded-full p-1"
-                          onClick={() => setEditingProperty({
-                            ...editingProperty,
-                            photos: editingProperty.photos.filter((_: string, i: number) => i !== idx)
-                          })}
-                          type="button"
-                        >
-                          <X className="h-4 w-4 text-red-500" />
-                        </button>
-                      </div>
-                    ))}
-                    <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-black/10 rounded cursor-pointer hover:border-black/30 transition">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        disabled={photoUploading}
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          setPhotoUploading(true);
-                          try {
-                            const cid = await uploadFileToIPFS(file);
-                            const url = convertIPFSURL(cid);
-                            setEditingProperty((prev: any) => ({
-                              ...prev,
-                              photos: [...(prev.photos || []), url]
-                            }));
-                          } catch (error) {
-                            // Optionally show toast here
-                          } finally {
-                            setPhotoUploading(false);
-                            e.target.value = "";
-                          }
-                        }}
-                      />
-                      {photoUploading ? (
-                        <span className="text-xs text-black/60">Uploading...</span>
-                      ) : (
-                        <span className="text-2xl text-black/30">+</span>
-                      )}
-                    </label>
-                  </div>
-                  <div className="text-xs text-black/50">You can upload multiple photos. Click × to remove any.</div>
-                </div>
-                <div>
-                  <div className="font-medium mb-2">Description</div>
-                  <textarea
-                    className="w-full border border-black/10 rounded p-2"
-                    value={editingProperty.description || ""}
-                    onChange={e => setEditingProperty({ ...editingProperty, description: e.target.value })}
-                    rows={4}
-                    placeholder="Describe your property, highlights, etc."
-                  />
-                </div>
-                <Button className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2" onClick={handleEditProperty}>Save Changes</Button>
-              </div>
-            )}
+  <form
+    className="w-full flex flex-col gap-6"
+    style={{
+      maxWidth: 700,
+      margin: '0 auto',
+    }}
+    onSubmit={e => {
+      e.preventDefault();
+      handleEditProperty();
+    }}
+  >
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Input
+        placeholder="Property Title"
+        value={editingProperty.title}
+        onChange={e => setEditingProperty({ ...editingProperty, title: e.target.value })}
+        className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+        required
+      />
+      <Input
+        type="number"
+        placeholder="Monthly Rent (₹)"
+        value={editingProperty.rent}
+        onChange={e => setEditingProperty({ ...editingProperty, rent: e.target.value })}
+        className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+        required
+      />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Input
+        placeholder="City"
+        value={editingProperty.address?.city || ""}
+        onChange={e => setEditingProperty({ ...editingProperty, address: { ...editingProperty.address, city: e.target.value } })}
+        className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+        required
+      />
+      <Input
+        placeholder="Pincode"
+        value={editingProperty.address?.pincode || ""}
+        onChange={e => setEditingProperty({ ...editingProperty, address: { ...editingProperty.address, pincode: e.target.value } })}
+        className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+        required
+      />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Input
+        type="number"
+        placeholder="Bedrooms"
+        value={editingProperty.bedrooms}
+        onChange={e => setEditingProperty({ ...editingProperty, bedrooms: e.target.value })}
+        className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+      />
+      <Input
+        type="number"
+        placeholder="Bathrooms"
+        value={editingProperty.bathrooms}
+        onChange={e => setEditingProperty({ ...editingProperty, bathrooms: e.target.value })}
+        className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+      />
+    </div>
+    <Input
+      type="number"
+      placeholder="Area (sqft)"
+      value={editingProperty.areaSqft}
+      onChange={e => setEditingProperty({ ...editingProperty, areaSqft: e.target.value })}
+      className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
+    />
+    <div>
+      <div className="font-medium mb-2 text-black">Tags</div>
+      <div className="flex flex-wrap gap-2">
+        {TAG_OPTIONS.map(tag => (
+          <label
+            key={tag}
+            className={`flex items-center gap-1 text-xs px-3 py-1 rounded-full cursor-pointer
+              ${editingProperty.tags?.includes(tag)
+                ? "bg-black text-white"
+                : "bg-black/10 text-black"}
+            `}
+            style={{ fontFamily: '"Outfit", sans-serif' }}
+          >
+            <input
+              type="checkbox"
+              checked={editingProperty.tags?.includes(tag)}
+              onChange={e => {
+                if (e.target.checked)
+                  setEditingProperty({ ...editingProperty, tags: [...(editingProperty.tags || []), tag] });
+                else
+                  setEditingProperty({ ...editingProperty, tags: editingProperty.tags.filter((t: string) => t !== tag) });
+              }}
+              className="accent-black"
+            />
+            {tag.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          </label>
+        ))}
+      </div>
+    </div>
+    <div>
+      <div className="font-medium mb-2 text-black">Photos</div>
+      <div className="flex flex-wrap gap-3 mb-2">
+        {editingProperty.photos?.map((url: string, idx: number) => (
+          <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
+            <img src={url} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
+            <button
+              className="absolute top-1 right-1 bg-white/80 hover:bg-white rounded-full p-1"
+              onClick={() => setEditingProperty({
+                ...editingProperty,
+                photos: editingProperty.photos.filter((_: string, i: number) => i !== idx)
+              })}
+              type="button"
+            >
+              <X className="h-4 w-4 text-red-500" />
+            </button>
+          </div>
+        ))}
+        <label className="w-24 h-24 flex items-center justify-center border-2 border-dashed border-black/10 rounded-xl cursor-pointer hover:border-black/30 transition">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={photoUploading}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setPhotoUploading(true);
+              try {
+                const cid = await uploadFileToIPFS(file);
+                const url = convertIPFSURL(cid);
+                setEditingProperty((prev: any) => ({
+                  ...prev,
+                  photos: [...(prev.photos || []), url]
+                }));
+              } catch (error) {
+                // Optionally show toast here
+              } finally {
+                setPhotoUploading(false);
+                e.target.value = "";
+              }
+            }}
+          />
+          {photoUploading ? (
+            <span className="text-xs text-black/60">Uploading...</span>
+          ) : (
+            <span className="text-2xl text-black/30">+</span>
+          )}
+        </label>
+      </div>
+      <div className="text-xs text-black/50">You can upload multiple photos. Click × to remove any.</div>
+    </div>
+    <div>
+      <div className="font-medium mb-2 text-black">Description</div>
+      <div className="bg-black/5 rounded-xl p-2">
+        <SimpleEditor
+          value={editingProperty.description || ""}
+          onChange={e => setEditingProperty({ ...editingProperty, description: e.target.value })}
+          placeholder="Describe your property, highlights, etc."
+          style={{
+            minHeight: 120,
+            fontFamily: '"Outfit", sans-serif',
+            fontSize: 16,
+            background: "transparent",
+            border: "none",
+            color: "#181818",
+          }}
+        />
+      </div>
+    </div>
+    <Button
+      type="submit"
+      className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 text-lg shadow-lg transition-all"
+      style={{ fontFamily: '"Outfit", sans-serif' }}
+    >
+      Save Changes
+    </Button>
+  </form>
+)}
           </DialogContent>
         </Dialog>
         {/* Verification Dialog */}

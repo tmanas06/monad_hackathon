@@ -325,9 +325,12 @@ export default function PropertyDetails() {
                 <h2 className="text-2xl font-bold mb-4 text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
                   Property Description
                 </h2>
-                <p className="text-black/80 leading-relaxed text-lg mb-6">
-                  {property.description || "No description available for this property."}
-                </p>
+                <div
+  className="text-black/80 leading-relaxed text-lg mb-6 property-description"
+  style={{ wordBreak: "break-word" }}
+  dangerouslySetInnerHTML={{ __html: property.description || "No description available for this property." }}
+/>
+
                 <h3 className="text-xl font-bold mb-4 text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
                   Property Features
                 </h3>
