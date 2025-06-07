@@ -4,18 +4,19 @@ import CivicAuthButton from '@/components/CivicAuthButton';
 const Hero = () => {
   return (
     <section
-      className="relative flex items-center justify-center min-h-[95vh] px-6 md:px-12 text-center bg-black rounded-[20px] overflow-hidden"
+      className="relative flex items-center justify-center min-h-screen w-full px-6 md:px-12 text-center"
       style={{
         background: `url('/herobg.jpg') center/cover no-repeat`,
       }}
     >
-      <div className="absolute inset-0 bg-black/50"></div>
+      {/* Dark overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/60"></div>
 
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-6">
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-6 pt-20">
         {/* Small brand text */}
         <div className="uppercase text-sm tracking-[0.15em] text-neutral-400 mb-2">RentRight</div>
 
-        {/* Thin gold line */}
+        {/* Thin accent line */}
         <div className="h-[2px] w-16 bg-green-300 mb-4"></div>
 
         {/* Headline */}
@@ -37,7 +38,7 @@ const Hero = () => {
         {/* Button */}
         <div className="mt-8">
           <button
-            className="px-8 py-3 border border-white text-white text-base rounded-full hover:bg-white hover:text-black transition-all"
+            className="px-8 py-3 border border-white text-white text-base rounded-full hover:bg-white hover:text-black transition-all duration-300"
           >
             Get Verified with Civic
           </button>

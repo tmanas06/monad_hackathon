@@ -7,15 +7,29 @@ import CivicAuthButton from './CivicAuthButton';
 
 const Header = () => {
   return (
-    <header className="bg-[#FAF6F2]/95 dark:bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <header className="fixed top-0 left-0 w-full flex justify-center pt-8 z-50">
+      <div
+        className="
+          max-w-5xl w-full mx-6
+          bg-black/80
+          rounded-full
+          shadow-2xl
+          px-8 py-3
+          flex items-center justify-between
+          border border-neutral-700
+          backdrop-blur-md
+        "
+        style={{
+          fontFamily: '"Outfit", sans-serif',
+        }}
+      >
         {/* Logo and Brand */}
         <Link to="/" className="flex items-center space-x-3 group">
-          <div className="bg-black dark:bg-white rounded-full p-2 flex items-center justify-center transition group-hover:scale-105">
-            <Home className="h-6 w-6 text-white dark:text-black" />
+          <div className="bg-white rounded-full p-2 flex items-center justify-center transition group-hover:scale-105">
+            <Home className="h-6 w-6 text-black" />
           </div>
           <span
-            className="text-2xl font-bold tracking-tight dark:text-white"
+            className="text-2xl font-bold tracking-tight text-white"
             style={{ fontFamily: '"Cyber", sans-serif' }}
           >
             RentRight
@@ -24,16 +38,10 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-8 ml-12">
-          <a
-            href="#properties"
-            className="text-lg text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white transition font-medium"
-            style={{ fontFamily: '"Outfit", sans-serif' }}
-          >
-            Properties
-          </a>
+          
           <a
             href="#about"
-            className="text-lg text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white transition font-medium"
+            className="text-lg text-neutral-200 hover:text-white transition font-medium"
             style={{ fontFamily: '"Outfit", sans-serif' }}
           >
             About
@@ -45,12 +53,13 @@ const Header = () => {
           <ThemeToggle />
           <Button
             variant="outline"
-            className="hidden sm:flex items-center space-x-2 border-neutral-300 dark:border-neutral-700 dark:text-white"
+            className="hidden sm:flex items-center space-x-2 border-neutral-600 bg-transparent text-white hover:bg-white hover:text-black"
           >
             <Search className="h-4 w-4" />
             <span>Search</span>
           </Button>
-          <CivicAuthButton className="bg-rent-green-600 hover:bg-rent-green-700 text-white"
+          <CivicAuthButton
+            className="bg-[#1ed760] hover:bg-[#19b955] text-white font-semibold rounded-full px-6 py-3"
             buttonText="Get Started"
             signedInText="Get Started"
             signingInText="Getting Started..."
