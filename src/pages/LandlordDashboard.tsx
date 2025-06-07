@@ -399,23 +399,23 @@ const LandlordDashboard = () => {
       }}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input placeholder="Property Title" value={propertyTitle} onChange={e => setPropertyTitle(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+              <Input placeholder="Property Title" value={propertyTitle} onChange={e => setPropertyTitle(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
           required/>
-              <Input type="number" placeholder="Monthly Rent (₹)" value={propertyRent} onChange={e => setPropertyRent(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+              <Input type="number" placeholder="Monthly Rent (₹)" value={propertyRent} onChange={e => setPropertyRent(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
           required/>
           </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input placeholder="City" value={propertyCity} onChange={e => setPropertyCity(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+                <Input placeholder="City" value={propertyCity} onChange={e => setPropertyCity(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
           required/>
-                <Input placeholder="Pincode" value={propertyPincode} onChange={e => setPropertyPincode(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"
+                <Input placeholder="Pincode" value={propertyPincode} onChange={e => setPropertyPincode(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"
           required />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input type="number" placeholder="Bedrooms" value={propertyBedrooms} onChange={e => setPropertyBedrooms(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"/>
-                <Input type="number" placeholder="Bathrooms" value={propertyBathrooms} onChange={e => setPropertyBathrooms(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"/>
+                <Input type="number" placeholder="Bedrooms" value={propertyBedrooms} onChange={e => setPropertyBedrooms(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"/>
+                <Input type="number" placeholder="Bathrooms" value={propertyBathrooms} onChange={e => setPropertyBathrooms(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"/>
               </div>
               
-              <Input type="number" placeholder="Area (sqft)" value={propertyAreaSqft} onChange={e => setPropertyAreaSqft(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium"/>
+              <Input type="number" placeholder="Area (sqft)" value={propertyAreaSqft} onChange={e => setPropertyAreaSqft(e.target.value)} className="bg-black/5 rounded-xl px-4 py-3 text-lg font-medium text-black"/>
                <div>
         <div className="font-medium mb-2 text-black">Tags</div>
                 <div className="flex flex-wrap gap-2">
