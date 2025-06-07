@@ -12,6 +12,7 @@ import {
   ArrowLeft, Phone, Mail, Shield, Star, MapPin, BedDouble, Bath, Ruler, CheckCircle, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { Property, User } from "@/types/property";
+import ApplicationDialog from '../components/ApplicationDialog'; // Create this new component
 
 const tagLabels: Record<string, string> = {
   family_friendly: "Family Friendly",
@@ -53,6 +54,14 @@ export default function PropertyDetails() {
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [applicationId, setApplicationId] = useState<string | null>(null);
+const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+const [applicationData, setApplicationData] = useState({
+  desiredRent: property?.rent || '',
+  moveInDate: '',
+  applicationText: ''
+});
+const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
+const [rejectionReason, setRejectionReason] = useState<string | null>(null);
 
   const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
 
@@ -117,9 +126,13 @@ export default function PropertyDetails() {
         );
         const snap = await getDocs(q);
         if (!snap.empty) {
-          setApplied(true);
-          setApplicationId(snap.docs[0].id);
-        }
+  setApplied(true);
+  setApplicationId(snap.docs[0].id);
+  const appData = snap.docs[0].data();
+  setApplicationStatus(appData.status || null);
+  setRejectionReason(appData.rejectionReason || null);
+}
+
       } catch (error) {
         console.error("Error checking application:", error);
       }
@@ -127,25 +140,28 @@ export default function PropertyDetails() {
     checkApplication();
   }, [user, walletAddress, property?.id]);
 
-  const handleApply = async () => {
-    if (!user || !property || !walletAddress) return;
-    setApplying(true);
-    try {
-      const docRef = await addDoc(collection(db, "applications"), {
-        propertyId: property.id,
-        tenantWallet: walletAddress,
-        landlordWallet: property.landlordWallet,
-        status: "Under Review",
-        appliedAt: serverTimestamp()
-      });
-      setApplied(true);
-      setApplicationId(docRef.id);
-    } catch (error) {
-      alert("Failed to submit application. Please try again.");
-    } finally {
-      setApplying(false);
-    }
-  };
+const handleApply = async (newApplicationData?: any) => {
+  if (!user || !property || !walletAddress) return;
+  setApplying(true);
+  try {
+    await addDoc(collection(db, "applications"), {
+      propertyId: property.id,
+      tenantWallet: walletAddress,
+      landlordWallet: property.landlordWallet,
+      status: "Under Review",
+      appliedAt: serverTimestamp(),
+      desiredRent: newApplicationData?.desiredRent || null,
+      moveInDate: newApplicationData?.moveInDate || null,
+      applicationText: newApplicationData?.applicationText || null,
+      propertyTitle: property.title
+    });
+    setApplied(true);
+  } catch (error) {
+    alert("Failed to submit application");
+  } finally {
+    setApplying(false);
+  }
+};
 
   const handleRate = async (rating: number) => {
     if (!isVerified || !property || !walletAddress) return;
@@ -441,12 +457,56 @@ export default function PropertyDetails() {
                           {applying ? "Submitting..." : "Apply Now"}
                         </Button>
                       )}
-                      {applied && (
-                        <div className="flex items-center gap-2 text-green-600 mt-3 p-2 bg-green-50 rounded-lg">
-                          <CheckCircle className="h-4 w-4" />
-                          <span className="text-sm">Your application status: Under Review</span>
-                        </div>
-                      )}
+                      {applied && applicationStatus && (
+  <div
+    className={`flex items-center gap-2 mt-3 p-2 rounded-lg
+      ${applicationStatus === "Approved" ? "text-green-600 bg-green-50"
+        : applicationStatus === "Rejected" ? "text-red-600 bg-red-50"
+        : "text-green-600 bg-green-50"
+      }`
+    }
+  >
+    <CheckCircle className="h-4 w-4" />
+    <span className="text-sm">
+      Your application status: {applicationStatus}
+    </span>
+  </div>
+)}
+{applied && applicationStatus === "Rejected" && rejectionReason && (
+  <div className="mt-2 p-2 bg-red-100 rounded text-red-700 text-sm">
+    Rejection Reason: {rejectionReason}
+  </div>
+)}
+
+                      {applied && applicationData && (
+  <div className="mt-4">
+\    <div className="grid grid-cols-2 gap-2 mt-2">
+      {applicationData.desiredRent && (
+        <div className="bg-blue-50 p-2 rounded-lg">
+          <span className="text-xs text-blue-600">Desired Rent:</span>
+          <p className="font-medium">₹{applicationData.desiredRent}</p>
+        </div>
+      )}
+      {applicationData.moveInDate && (
+        <div className="bg-blue-50 p-2 rounded-lg">
+          <span className="text-xs text-blue-600">Move-in Date:</span>
+          <p className="font-medium">
+            {new Date(applicationData.moveInDate).toLocaleDateString()}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+<ApplicationDialog
+  open={showApplicationDialog}
+  onOpenChange={setShowApplicationDialog}
+  onSubmit={(data) => {
+    setApplicationData(data);
+    handleApply(data);
+  }}
+  defaultRent={property?.rent}
+/>
                     </div>
                   ) : (
                     <div className="text-center p-4 bg-black/5 border border-black/10 rounded-xl">

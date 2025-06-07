@@ -38,6 +38,9 @@ import { useCallback } from 'react';
 
 import { userHasWallet } from '@civic/auth-web3';
 interface Application {
+  applicationText: any;
+  moveInDate: any;
+  desiredRent: any;
   id: string;
   landlordWallet: string;
   tenantWallet: string;
@@ -62,6 +65,8 @@ const ApplicationsPage = () => {
     message: ''
   });
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+const [rejectionReason, setRejectionReason] = useState('');
 
   const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
 
@@ -120,25 +125,28 @@ const fetchApplications = useCallback(async () => {
     setShowContactDialog(true);
   };
 
-  const handleReject = async (applicationId: string) => {
-    try {
-      await updateDoc(doc(db, "applications", applicationId), {
-        status: "Rejected",
-        updatedAt: serverTimestamp()
-      });
-      
-      setApplications(prev => 
-        prev.map(app => 
-          app.id === applicationId 
-            ? { ...app, status: "Rejected" }
-            : app
-        )
-      );
-    } catch (error) {
-      console.error("Error rejecting application:", error);
-      alert("Failed to reject application");
-    }
-  };
+ const handleReject = async (applicationId: string) => {
+  try {
+    await updateDoc(doc(db, "applications", applicationId), {
+      status: "Rejected",
+      rejectionReason: rejectionReason, // Add rejection reason to Firestore
+      updatedAt: serverTimestamp()
+    });
+    
+    setApplications(prev => 
+      prev.map(app => 
+        app.id === applicationId 
+          ? { ...app, status: "Rejected", rejectionReason }
+          : app
+      )
+    );
+    setRejectionReason(''); // Reset reason
+    setShowRejectDialog(false);
+  } catch (error) {
+    console.error("Error rejecting application:", error);
+    alert("Failed to reject application");
+  }
+};
 
   const handleApproveWithContact = async () => {
     if (!selectedApplication || !contactDetails.phone || !contactDetails.email) {
@@ -298,7 +306,33 @@ const fetchApplications = useCallback(async () => {
                       </div>
                     )}
                   </div>
-
+  {application.desiredRent && (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <h4 className="text-sm font-semibold text-blue-800 mb-2">Tenant Negotiation Terms</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-xs text-blue-600">Desired Rent:</p>
+                          <p className="font-medium">₹{application.desiredRent?.toLocaleString()}</p>
+                        </div>
+                        {application.moveInDate && (
+                          <div>
+                            <p className="text-xs text-blue-600">Move-in Date:</p>
+                            <p className="font-medium">
+                              {new Date(application.moveInDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                        )}
+                        {application.applicationText && (
+                          <div className="col-span-2">
+                            <p className="text-xs text-blue-600">Additional Notes:</p>
+                            <p className="whitespace-pre-wrap text-sm mt-1">
+                              {application.applicationText}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {/* Action Buttons */}
                   {application.status === 'Under Review' && (
                     <div className="flex gap-3">
@@ -399,6 +433,45 @@ const fetchApplications = useCallback(async () => {
             </div>
           </DialogContent>
         </Dialog>
+<Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+  <DialogContent className="max-w-md rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
+    <DialogHeader>
+      <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
+        Provide Rejection Reason
+      </DialogTitle>
+      <p className="text-black/60">
+        Please let the tenant know why their application was rejected
+      </p>
+    </DialogHeader>
+    
+    <div className="space-y-4">
+      <Input
+        placeholder="Reason for rejection (e.g., incomplete documents, references)"
+        value={rejectionReason}
+        onChange={(e) => setRejectionReason(e.target.value)}
+        className="bg-black/5 rounded-xl"
+      />
+      
+      <div className="flex gap-3 pt-4">
+        <Button
+          onClick={() => handleReject(selectedApplication!.id)}
+          className="bg-red-600 hover:bg-red-700 text-white rounded-xl flex-1"
+          disabled={!rejectionReason}
+        >
+          <XCircle className="h-4 w-4 mr-2" />
+          Confirm Rejection
+        </Button>
+        <Button
+          onClick={() => setShowRejectDialog(false)}
+          variant="outline"
+          className="rounded-xl"
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
       </main>
     </div>
   );
