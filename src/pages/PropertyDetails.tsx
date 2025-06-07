@@ -449,13 +449,14 @@ const handleApply = async (newApplicationData?: any) => {
                           View My Applications
                         </Button>
                       ) : (
-                        <Button
-                          disabled={applying}
-                          onClick={handleApply}
-                          className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
-                        >
-                          {applying ? "Submitting..." : "Apply Now"}
-                        </Button>
+                       <Button
+  disabled={applying || applied}
+  onClick={() => setShowApplicationDialog(true)}
+  className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
+>
+  {applying ? "Submitting..." : "Apply Now"}
+</Button>
+
                       )}
                       {applied && applicationStatus && (
   <div
@@ -480,21 +481,9 @@ const handleApply = async (newApplicationData?: any) => {
 
                       {applied && applicationData && (
   <div className="mt-4">
-\    <div className="grid grid-cols-2 gap-2 mt-2">
-      {applicationData.desiredRent && (
-        <div className="bg-blue-50 p-2 rounded-lg">
-          <span className="text-xs text-blue-600">Desired Rent:</span>
-          <p className="font-medium">₹{applicationData.desiredRent}</p>
-        </div>
-      )}
-      {applicationData.moveInDate && (
-        <div className="bg-blue-50 p-2 rounded-lg">
-          <span className="text-xs text-blue-600">Move-in Date:</span>
-          <p className="font-medium">
-            {new Date(applicationData.moveInDate).toLocaleDateString()}
-          </p>
-        </div>
-      )}
+    <div className="grid grid-cols-2 gap-2 mt-2">
+     
+     
     </div>
   </div>
 )}

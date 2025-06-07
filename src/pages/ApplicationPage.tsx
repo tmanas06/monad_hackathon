@@ -215,7 +215,7 @@ const fetchApplications = useCallback(async () => {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button
-              onClick={() => navigate('/landlord')}
+              onClick={() => navigate('/landlords')}
               variant="outline"
               className="rounded-xl"
             >
@@ -344,13 +344,17 @@ const fetchApplications = useCallback(async () => {
                         Approve Application
                       </Button>
                       <Button
-                        onClick={() => handleReject(application.id)}
-                        variant="outline"
-                        className="border-red-200 text-red-700 hover:bg-red-50 rounded-xl"
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Reject
-                      </Button>
+  onClick={() => {
+    setSelectedApplication(application);
+    setShowRejectDialog(true);
+  }}
+  variant="outline"
+  className="border-red-200 text-red-700 hover:bg-red-50 rounded-xl"
+>
+  <XCircle className="h-4 w-4 mr-2" />
+  Reject
+</Button>
+
                     </div>
                   )}
                 </CardContent>
