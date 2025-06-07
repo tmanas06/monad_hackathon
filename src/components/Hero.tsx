@@ -9,33 +9,38 @@ const Hero = () => {
         background: `url('/herobg.jpg') center/cover no-repeat`,
       }}
     >
-      {/* Subtle dark overlay for readability */}
       <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-8">
-        {/* Logo or small brand text if needed */}
-        {/* <div className="uppercase text-sm tracking-widest text-neutral-400 mb-2">Luxury Rentals</div> */}
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-6">
+        {/* Small brand text */}
+        <div className="uppercase text-sm tracking-[0.15em] text-neutral-400 mb-2">RentRight</div>
+
+        {/* Thin gold line */}
+        <div className="h-[2px] w-16 bg-green-300 mb-4"></div>
 
         {/* Headline */}
         <h1
           className="text-5xl md:text-7xl font-serif leading-tight tracking-wide text-white"
-          style={{ fontFamily: '"Playfair Display", serif' }}
+          style={{ fontFamily: '"Cyber"' }}
         >
-          Trusted Rentals,<br />Verified Tenants
+          Trusted Rentals, <span className="italic text-green-300">Verified</span> Tenants
         </h1>
 
         {/* Subtext */}
         <p
-          className="text-lg md:text-xl text-neutral-200 max-w-xl"
+          className="text-lg md:text-xl text-neutral-200 max-w-xl mt-4"
           style={{ fontFamily: '"Outfit", sans-serif', lineHeight: '1.7' }}
         >
           RentRight uses Civic Auth for secure tenant verification, making the rental process faster, safer, and more reliable for both landlords and tenants.
         </p>
 
         {/* Button */}
-        <div className="mt-6">
-          <CivicAuthButton />
+        <div className="mt-8">
+          <button
+            className="px-8 py-3 border border-white text-white text-base rounded-full hover:bg-white hover:text-black transition-all"
+          >
+            Get Verified with Civic
+          </button>
         </div>
       </div>
     </section>
