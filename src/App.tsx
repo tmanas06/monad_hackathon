@@ -14,6 +14,7 @@ import PropertyDetails from "./pages/PropertyDetails";
 import MyApplications from "./pages/MyApplications";
 import ApplicationsPage from "./pages/ApplicationPage";
 import { WalletProvider } from "@/contexts/WalletContext";
+import AboutPage from "./components/AboutSection";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="*" element={<NotFound />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/tenants" element={<TenantDashboard />} />
               <Route path="/landlords" element={<LandlordDashboard />} />
               <Route path="/tenant/settings" element={<TenantSettingsPage />} />
