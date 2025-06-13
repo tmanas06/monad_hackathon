@@ -27,7 +27,7 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
                 <Home className="h-6 w-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-rent-blue-600 to-rent-green-600 bg-clip-text text-transparent">
-                RentRight
+                MonadRent
               </h1>
             </div>
             
