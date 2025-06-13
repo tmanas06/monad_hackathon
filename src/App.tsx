@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CivicAuthProvider } from "@civic/auth-web3/react";
 import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -14,12 +13,14 @@ import LandlordSettingsPage from "./pages/landlord/SettingsPage";
 import PropertyDetails from "./pages/PropertyDetails";
 import MyApplications from "./pages/MyApplications";
 import ApplicationsPage from "./pages/ApplicationPage";
+import { WalletProvider } from "@/contexts/WalletContext";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange={false}>
     <QueryClientProvider client={queryClient}>
-      <CivicAuthProvider clientId="8f44da03-88fb-44f3-98e3-764ff4c41b97">
+    <WalletProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -39,7 +40,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
-      </CivicAuthProvider>
+      </WalletProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );

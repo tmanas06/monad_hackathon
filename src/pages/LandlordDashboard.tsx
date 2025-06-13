@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '../fonts.css';
-import { useUser } from '@civic/auth-web3/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -8,28 +7,38 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Plus, Building, Users, FileText, Shield, Lock, CheckCircle, Home, X, Sparkles } from 'lucide-react';
+import { Plus, Building, Users, FileText, Shield, Lock, CheckCircle, Home, X, Sparkles, Loader2 } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { userHasWallet } from '@civic/auth-web3';
 import PropertyCard from '@/components/PropertyCard';
 import { uploadFileToIPFS } from "@/utils/pinata";
 import { convertIPFSURL } from "@/utils/ipfs";
-import SimpleEditor from 'react-simple-wysiwyg'; // Add this import at the top
+import SimpleEditor from 'react-simple-wysiwyg';
+import { useWallet } from '../contexts/WalletContext';
 
 const TAG_OPTIONS = [
   "family_friendly", "bachelor_friendly", "student_friendly", "work_drive_friendly"
 ];
 
 const LandlordDashboard = () => {
-  const userContext = useUser();
+  const { publicKey } = useWallet();
   const navigate = useNavigate();
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [aadharNumber, setAadharNumber] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [showAddPropertyDialog, setShowAddPropertyDialog] = useState(false);
-
+  const [kycData, setKycData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    idProof: null as File | null,
+    selfie: null as File | null,
+    idProofUrl: '',
+    selfieUrl: ''
+  });
+  const [kycUploading, setKycUploading] = useState(false);
   // Add property form state
   const [propertyTitle, setPropertyTitle] = useState('');
   const [propertyRent, setPropertyRent] = useState('');
@@ -53,24 +62,20 @@ const LandlordDashboard = () => {
   const [activeTenants, setActiveTenants] = useState<number>(0);
   const [pendingApplications, setPendingApplications] = useState<number>(0);
 
-
-  const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
-
   useEffect(() => {
-    if (!userContext.user) {
+    if (!publicKey) {
       navigate('/');
       return;
     }
+    
     const initializeUser = async () => {
       try {
-        if (!walletAddress) return;
-        const userRef = doc(db, "users", walletAddress);
+        const userRef = doc(db, "users", publicKey);
         const userSnap = await getDoc(userRef);
+        
         if (!userSnap.exists()) {
           await setDoc(userRef, {
-            walletAddress,
-            name: userContext.user?.name || "",
-            email: userContext.user?.email || "",
+            walletAddress: publicKey,
             isVerified: false,
             roles: ["landlord"],
             createdAt: serverTimestamp(),
@@ -84,40 +89,44 @@ const LandlordDashboard = () => {
         setIsVerified(false);
       }
     };
+    
     initializeUser();
-  }, [userContext, walletAddress, navigate]);
+  }, [publicKey, navigate]);
 
   useEffect(() => {
-    if (isVerified && walletAddress) {
+    if (isVerified && publicKey) {
       const fetchProperties = async () => {
-        const q = query(collection(db, "properties"), where("landlordWallet", "==", walletAddress));
+        const q = query(collection(db, "properties"), where("landlordWallet", "==", publicKey));
         const snap = await getDocs(q);
         setProperties(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       };
+      
       const fetchActiveTenants = async () => {
         const q = query(
           collection(db, "applications"),
-          where("landlordWallet", "==", walletAddress),
+          where("landlordWallet", "==", publicKey),
           where("status", "==", "approved")
         );
         const snap = await getDocs(q);
         setActiveTenants(snap.size);
       };
+      
       fetchProperties();
       fetchActiveTenants();
     }
-    const fetchPendingApplications = async () => {
-  const q = query(
-    collection(db, "applications"),
-    where("landlordWallet", "==", walletAddress),
-    where("status", "==", "Under Review")
-  );
-  const snap = await getDocs(q);
-  setPendingApplications(snap.size);
-};
-fetchPendingApplications();
 
-  }, [isVerified, walletAddress]);
+    const fetchPendingApplications = async () => {
+      const q = query(
+        collection(db, "applications"),
+        where("landlordWallet", "==", publicKey),
+        where("status", "==", "Under Review")
+      );
+      const snap = await getDocs(q);
+      setPendingApplications(snap.size);
+    };
+    
+    fetchPendingApplications();
+  }, [isVerified, publicKey]);
 
   const resetAddForm = () => {
     setPropertyTitle('');
@@ -134,10 +143,10 @@ fetchPendingApplications();
   };
 
   const handleAddProperty = async () => {
-    if (!propertyTitle || !propertyRent || !propertyCity || !propertyPincode || !walletAddress) return;
+    if (!propertyTitle || !propertyRent || !propertyCity || !propertyPincode || !publicKey) return;
     try {
       const docRef = await addDoc(collection(db, "properties"), {
-        landlordWallet: walletAddress,
+        landlordWallet: publicKey,
         title: propertyTitle,
         rent: Number(propertyRent),
         address: { city: propertyCity, pincode: propertyPincode },
@@ -152,7 +161,7 @@ fetchPendingApplications();
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
-      const landlordRef = doc(db, "landlords", walletAddress);
+      const landlordRef = doc(db, "landlords", publicKey);
       await setDoc(landlordRef, {
         properties: [docRef.id],
         updatedAt: serverTimestamp()
@@ -200,8 +209,8 @@ fetchPendingApplications();
     }
   };
 
-  const handleAadharVerification = async () => {
-    if (!walletAddress || aadharNumber.length !== 12) return;
+   const handleAadharVerification = async () => {
+    if (!publicKey || aadharNumber.length !== 12) return;
     setIsVerifying(true);
     try {
       const hashHex = await crypto.subtle.digest(
@@ -209,11 +218,13 @@ fetchPendingApplications();
         new TextEncoder().encode(aadharNumber)
       ).then(hash => Array.from(new Uint8Array(hash))
         .map(b => b.toString(16).padStart(2, '0')).join(''));
-      await setDoc(doc(db, "users", walletAddress), {
+      
+      await setDoc(doc(db, "users", publicKey), {
         aadharHash: hashHex,
         isVerified: true,
         updatedAt: serverTimestamp()
       }, { merge: true });
+      
       setIsVerified(true);
       setShowVerificationDialog(false);
     } catch (error) {
@@ -222,8 +233,138 @@ fetchPendingApplications();
       setIsVerifying(false);
     }
   };
+ // Modified verification handler
+ const handleKYCSubmission = async () => {
+  if (!publicKey || !kycData.fullName || !kycData.email) return;
+  if (!kycData.idProof || !kycData.selfie) {
+    alert('Please upload both ID proof and selfie');
+    return;
+  }
 
-  if (!userContext.user) return null;
+  setKycUploading(true);
+  try {
+    // Upload files to IPFS
+    const idProofCID = await uploadFileToIPFS(kycData.idProof);
+    const selfieCID = await uploadFileToIPFS(kycData.selfie);
+
+    // Create payload WITHOUT File objects
+    const kycPayload = {
+      fullName: kycData.fullName,
+      email: kycData.email,
+      phone: kycData.phone,
+      address: kycData.address,
+      idProofUrl: convertIPFSURL(idProofCID),
+      selfieUrl: convertIPFSURL(selfieCID),
+      verifiedAt: serverTimestamp()
+    };
+
+    // Save to Firestore
+    await setDoc(doc(db, "users", publicKey), {
+      kyc: kycPayload, // <-- Now contains only strings/numbers
+      isVerified: true,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    setIsVerified(true);
+    setShowVerificationDialog(false);
+  } catch (error) {
+    console.error("KYC verification failed:", error);
+    alert("Verification failed. Please try again.");
+  } finally {
+    setKycUploading(false);
+  }
+};
+
+
+  if (!publicKey) return null;
+const renderVerificationDialog = () => (
+    <Dialog open={showVerificationDialog} onOpenChange={setShowVerificationDialog}>
+      <DialogContent className="max-w-2xl rounded-3xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
+        <DialogHeader>
+          <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
+            Complete KYC Verification
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              placeholder="Full Legal Name"
+              value={kycData.fullName}
+              onChange={e => setKycData({...kycData, fullName: e.target.value})}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="Email Address"
+              value={kycData.email}
+              onChange={e => setKycData({...kycData, email: e.target.value})}
+              required
+            />
+            <Input
+              type="tel"
+              placeholder="Phone Number"
+              value={kycData.phone}
+              onChange={e => setKycData({...kycData, phone: e.target.value})}
+              required
+            />
+            <Input
+              placeholder="Physical Address"
+              value={kycData.address}
+              onChange={e => setKycData({...kycData, address: e.target.value})}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">Government ID Proof</label>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setKycData({...kycData, idProof: file});
+                  }
+                }}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black/10 file:text-black hover:file:bg-black/20"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">Selfie with ID</label>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setKycData({...kycData, selfie: file});
+                  }
+                }}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black/10 file:text-black hover:file:bg-black/20"
+              />
+            </div>
+          </div>
+
+          <Button
+            className="w-full py-3 rounded-xl bg-black hover:bg-neutral-900 text-white font-medium transition-all duration-300 shadow-lg"
+            onClick={handleKYCSubmission}
+            disabled={kycUploading || !kycData.idProof || !kycData.selfie}
+          >
+            {kycUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              'Submit KYC Documentation'
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f6f1] via-[#fffdfa] to-[#ece7de]">
@@ -275,17 +416,19 @@ fetchPendingApplications();
                 {/* Current verification method */}
                 <div className="mb-12">
                   <h3 className="text-lg font-semibold text-black mb-4" style={{ fontFamily: '"Outfit", sans-serif' }}>
-                    Current Verification Method
-                  </h3>
+  Complete KYC Verification
+</h3>
+
                   <Button
-                    size="lg"
-                    onClick={() => setShowVerificationDialog(true)}
-                    className="px-12 py-4 text-lg font-semibold rounded-2xl bg-black hover:bg-neutral-900 text-white transition-all duration-300 hover:shadow-lg"
-                    style={{ fontFamily: '"Outfit", sans-serif' }}
-                  >
-                    <Shield className="h-6 w-6 mr-3" />
-                    Verify with Aadhar
-                  </Button>
+  size="lg"
+  onClick={() => setShowVerificationDialog(true)}
+  className="px-12 py-4 text-lg font-semibold rounded-2xl bg-black hover:bg-neutral-900 text-white transition-all duration-300 hover:shadow-lg"
+  style={{ fontFamily: '"Outfit", sans-serif' }}
+>
+  <Shield className="h-6 w-6 mr-3" />
+  Start KYC Verification
+</Button>
+
                 </div>
                 {/* Future Civic Pass emphasis */}
                 <div className="p-8 rounded-2xl border-2 border-dashed border-black/10 bg-gradient-to-br from-[#fffdfa] to-[#ece7de]">
@@ -748,29 +891,7 @@ fetchPendingApplications();
           </DialogContent>
         </Dialog>
         {/* Verification Dialog */}
-        <Dialog open={showVerificationDialog} onOpenChange={setShowVerificationDialog}>
-          <DialogContent className="max-w-md rounded-2xl bg-gradient-to-br from-[#fffdfa] to-[#ece7de] border-0">
-            <DialogHeader>
-              <DialogTitle className="text-2xl" style={{ fontFamily: '"Cyber", sans-serif', color: "#181818" }}>
-                Verify with Aadhar
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="12-digit Aadhar Number"
-                value={aadharNumber}
-                onChange={(e) => setAadharNumber(e.target.value.replace(/\D/g, '').slice(0, 12))}
-              />
-              <Button
-                className="bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2"
-                onClick={handleAadharVerification}
-                disabled={isVerifying || aadharNumber.length !== 12}
-              >
-                {isVerifying ? 'Verifying...' : 'Verify Identity'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {renderVerificationDialog()}
       </main>
     </div>
   );

@@ -1,6 +1,5 @@
 import '../fonts.css';
-import CivicAuthButton from '@/components/CivicAuthButton';
-
+import WalletConnect from './WalletConnect';
 const Hero = () => {
   return (
     <section
@@ -37,12 +36,7 @@ const Hero = () => {
 
         {/* Button */}
         <div className="mt-8">
-          <CivicAuthButton
-            className="px-8 py-3 border border-white text-white text-base rounded-full hover:bg-white hover:text-black transition-all duration-300"
-            buttonText="Get Verified with Civic"
-            signedInText="Get Verified with Civic"
-            signingInText="Getting Verified..."
-          />
+          <WalletConnect/>
         </div>
       </div>
     </section>

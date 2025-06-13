@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '../fonts.css';
-import { useUser } from '@civic/auth-web3/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -10,12 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Shield, Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, serverTimestamp, collection, getDocs } from 'firebase/firestore';
-import { userHasWallet } from '@civic/auth-web3';
+import { useWallet } from '../contexts/WalletContext';
 import PropertyCard from '@/components/PropertyCard';
 
 const TenantDashboard = () => {
-  const userContext = useUser();
-  const { user } = userContext;
+  const { connected, publicKey } = useWallet();
   const navigate = useNavigate();
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
@@ -24,23 +22,18 @@ const TenantDashboard = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
-
   useEffect(() => {
-    if (!user) {
+    if (!connected || !publicKey) {
       navigate('/');
       return;
     }
     const initializeUser = async () => {
       try {
-        if (!walletAddress) return;
-        const userRef = doc(db, "users", walletAddress);
+        const userRef = doc(db, "users", publicKey);
         const userSnap = await getDoc(userRef);
         if (!userSnap.exists()) {
           await setDoc(userRef, {
-            walletAddress,
-            name: user?.name || "",
-            email: user?.email || "",
+            walletAddress: publicKey,
             isVerified: false,
             roles: ["tenant"],
             createdAt: serverTimestamp(),
@@ -55,7 +48,7 @@ const TenantDashboard = () => {
       }
     };
     initializeUser();
-  }, [user, walletAddress, navigate]);
+  }, [connected, publicKey, navigate]);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -70,7 +63,7 @@ const TenantDashboard = () => {
   }, []);
 
   const handleAadharVerification = async () => {
-    if (!walletAddress || aadharNumber.length !== 12) return;
+    if (!publicKey || aadharNumber.length !== 12) return;
     setIsVerifying(true);
     try {
       const hashHex = await crypto.subtle.digest(
@@ -80,7 +73,7 @@ const TenantDashboard = () => {
         const hashArray = Array.from(new Uint8Array(hash));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       });
-      const userRef = doc(db, "users", walletAddress);
+      const userRef = doc(db, "users", publicKey);
       await setDoc(userRef, {
         aadharHash: hashHex,
         isVerified: true,
@@ -94,8 +87,6 @@ const TenantDashboard = () => {
       setIsVerifying(false);
     }
   };
-
-  if (!user) return null;
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #f8f6f1 0%, #f3efe7 100%)' }}>
