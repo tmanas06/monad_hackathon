@@ -7,7 +7,7 @@ interface WalletContextType {
   connecting: boolean;
   publicKey: string | null;
   connect: () => Promise<void>;
-  disconnect: () => void;
+  disconnect: () => Promise<void>;
   userRole: 'landlord' | 'tenant' | null;
   setUserRole: (role: 'landlord' | 'tenant') => void;
   hasCompletedKYC: boolean;
@@ -55,11 +55,31 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     }
   };
 
-  const disconnect = () => {
-    setConnected(false);
-    setPublicKey(null);
-    setUserRole(null);
-    setHasCompletedKYC(false);
+  const disconnect = async () => {
+    try {
+      const { phantom } = window as any;
+      if (phantom?.ethereum) {
+        // Request wallet to disconnect
+        await phantom.ethereum.request({ method: 'eth_accounts' });
+        // Clear local state
+        setConnected(false);
+        setPublicKey(null);
+        setUserRole(null);
+        setHasCompletedKYC(false);
+        
+        // Clear any stored wallet data
+        if (publicKey) {
+          localStorage.removeItem(`userRole_${publicKey}`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to disconnect wallet:', error);
+      // Still clear local state even if wallet disconnect fails
+      setConnected(false);
+      setPublicKey(null);
+      setUserRole(null);
+      setHasCompletedKYC(false);
+    }
   };
 
   // Check for existing connection on mount

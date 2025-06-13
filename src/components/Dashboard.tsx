@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Home, User, LogOut, Plus, Eye, MessageSquare, Wallet, ExternalLink } from 'lucide-react';
 import { useAccount } from 'wagmi';
+import { useUser } from '@civic/auth-web3/react';
 
 interface DashboardProps {
   userRole: 'tenant' | 'landlord' | null;
@@ -11,9 +12,25 @@ interface DashboardProps {
 
 const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
   const { address, isConnected } = useAccount();
+  const { user } = useUser();
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  const handleLogout = () => {
+    try {
+      // Clear any stored user data
+      if (user?.id || user?.email) {
+        localStorage.removeItem(`userRole_${user.id || user.email}`);
+      }
+      
+      // Call the onLogout callback to handle local state cleanup
+      onLogout();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      onLogout(); // Ensure local state is cleared even if there's an error
+    }
   };
 
   return (
@@ -42,7 +59,7 @@ const Dashboard = ({ userRole, onLogout }: DashboardProps) => {
                   {formatAddress(address)}
                 </Badge>
               )}
-              <Button variant="outline" onClick={onLogout}>
+              <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>

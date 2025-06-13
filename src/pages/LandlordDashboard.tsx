@@ -15,6 +15,7 @@ import { uploadFileToIPFS } from "@/utils/pinata";
 import { convertIPFSURL } from "@/utils/ipfs";
 import SimpleEditor from 'react-simple-wysiwyg';
 import { useWallet } from '../contexts/WalletContext';
+import { useUser } from '@civic/auth-web3/react';
 
 const TAG_OPTIONS = [
   "family_friendly", "bachelor_friendly", "student_friendly", "work_drive_friendly"
@@ -22,6 +23,8 @@ const TAG_OPTIONS = [
 
 const LandlordDashboard = () => {
   const { publicKey } = useWallet();
+  const { user } = useUser();
+  const { disconnect } = useWallet();
   const navigate = useNavigate();
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
@@ -275,6 +278,24 @@ const LandlordDashboard = () => {
   }
 };
 
+  const handleLogout = async () => {
+    try {
+      // Clear any stored user data
+      if (user?.id || user?.email) {
+        localStorage.removeItem(`userRole_${user.id || user.email}`);
+      }
+      
+      // Disconnect wallet
+      await disconnect();
+      
+      // Navigate to home page
+      navigate('/');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Ensure we still navigate to home even if there's an error
+      navigate('/');
+    }
+  };
 
   if (!publicKey) return null;
 const renderVerificationDialog = () => (
@@ -368,7 +389,11 @@ const renderVerificationDialog = () => (
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f6f1] via-[#fffdfa] to-[#ece7de]">
-      <DashboardHeader title="Landlord Dashboard" userRole="landlord" />
+      <DashboardHeader 
+        title="Landlord Dashboard" 
+        userRole="landlord" 
+        onLogout={handleLogout}
+      />
       <main className="max-w-7xl mx-auto px-8 py-12">
         {/* Header Section */}
         <div className="flex justify-between items-start mb-12">
