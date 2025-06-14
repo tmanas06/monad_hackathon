@@ -21,6 +21,22 @@ const TAG_OPTIONS = [
   "family_friendly", "bachelor_friendly", "student_friendly", "work_drive_friendly"
 ];
 
+function toPublicGateway(url) {
+  if (!url) return '';
+  // If already a public gateway, return as is
+  if (url.startsWith('https://ipfs.io/ipfs/')) return url;
+  // If ipfs://CID or ipfs://CID/filename
+  if (url.startsWith('ipfs://')) {
+    return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+  }
+  // If it's a Pinata/private gateway, extract the CID and use public gateway
+  const match = url.match(/(?:ipfs\/|ipfs:\/\/)([a-zA-Z0-9]+)/);
+  if (match) {
+    return `https://ipfs.io/ipfs/${match[1]}`;
+  }
+  return url;
+}
+
 const LandlordDashboard = () => {
   const { publicKey } = useWallet();
   const { user } = useUser();
@@ -648,7 +664,7 @@ const renderVerificationDialog = () => (
                 <div className="flex flex-wrap gap-3 mb-2">
                   {propertyPhotos.map((url, idx) => (
                     <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
-                      <img src={url} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
+                      <img src={toPublicGateway(url)} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
                       <button
                         className="absolute top-1 right-1 bg-white/80 hover:bg-white rounded-full p-1"
                         onClick={() => setPropertyPhotos(propertyPhotos.filter((_, i) => i !== idx))}
@@ -839,7 +855,7 @@ const renderVerificationDialog = () => (
       <div className="flex flex-wrap gap-3 mb-2">
         {editingProperty.photos?.map((url: string, idx: number) => (
           <div key={url} className="relative w-20 h-20 rounded overflow-hidden border border-black/10">
-            <img src={url} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
+            <img src={toPublicGateway(url)} alt={`Property photo ${idx + 1}`} className="object-cover w-full h-full" />
             <button
               className="absolute top-1 right-1 bg-white/80 hover:bg-white rounded-full p-1"
               onClick={() => setEditingProperty({

@@ -18,20 +18,24 @@ import {
   XCircle
 } from "lucide-react";
 import ApplicationDialog from '../components/ApplicationDialog';
+import { useWallet } from "@/contexts/WalletContext";
 
 export default function MyApplications() {
-  const userContext = useUser();
+  const { publicKey} = useWallet();
   const navigate = useNavigate();
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 const [showApplicationDialog, setShowApplicationDialog] = useState(false);
 const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
-  const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
+  // const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
 
  useEffect(() => {
-  if (!walletAddress) return;
-  const q = query(collection(db, "applications"), where("tenantWallet", "==", walletAddress));
+
+  console.log(publicKey);
+  if (!publicKey) return;
+ 
+  const q = query(collection(db, "applications"), where("tenantWallet", "==", publicKey));
   const unsubscribe = onSnapshot(q, async (snap) => {
     const apps = [];
     for (const docSnap of snap.docs) {
@@ -48,11 +52,12 @@ const [selectedApplication, setSelectedApplication] = useState<any>(null);
         rejectionReason: appData.rejectionReason
       });
     }
+    console.log(apps);
     setApplications(apps);
     setLoading(false);
   });
   return () => unsubscribe();
-}, [walletAddress]);
+}, [publicKey]);
 
 const handleApplyAgain = async (applicationData: any) => {
   try {
