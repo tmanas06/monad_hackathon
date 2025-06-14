@@ -4,15 +4,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, updateDoc, query, where, getDocs } from "firebase/firestore";
-import { useUser } from '@civic/auth-web3/react';
-import { userHasWallet } from '@civic/auth-web3';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowLeft, Phone, Mail, Shield, Star, MapPin, BedDouble, Bath, Ruler, CheckCircle, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { Property, User } from "@/types/property";
-import ApplicationDialog from '../components/ApplicationDialog'; // Create this new component
+import ApplicationDialog from '../components/ApplicationDialog';
 
 const tagLabels: Record<string, string> = {
   family_friendly: "Family Friendly",
@@ -41,11 +39,8 @@ function StarButton({ filled, onClick, disabled }: { filled: boolean; onClick: (
 export default function PropertyDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const userContext = useUser();
-  const { user } = userContext;
   const [property, setProperty] = useState<Property | null>(null);
   const [landlord, setLandlord] = useState<User | null>(null);
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [applied, setApplied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
@@ -54,16 +49,24 @@ export default function PropertyDetails() {
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [applicationId, setApplicationId] = useState<string | null>(null);
-const [showApplicationDialog, setShowApplicationDialog] = useState(false);
-const [applicationData, setApplicationData] = useState({
-  desiredRent: property?.rent || '',
-  moveInDate: '',
-  applicationText: ''
-});
-const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
-const [rejectionReason, setRejectionReason] = useState<string | null>(null);
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+  const [applicationData, setApplicationData] = useState({
+    desiredRent: property?.rent || '',
+    moveInDate: '',
+    applicationText: ''
+  });
+  const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
-  const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
+  useEffect(() => {
+    const checkWalletConnection = async () => {
+      if (window.ethereum?.selectedAddress) {
+        setWalletAddress(window.ethereum.selectedAddress);
+      }
+    };
+    checkWalletConnection();
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -102,21 +105,7 @@ const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   }, [id, walletAddress]);
 
   useEffect(() => {
-    if (!user || !walletAddress) return;
-    const fetchVerificationStatus = async () => {
-      try {
-        const userSnap = await getDoc(doc(db, "users", walletAddress));
-        setIsVerified(userSnap.data()?.isVerified ?? false);
-      } catch (error) {
-        setIsVerified(false);
-      }
-    };
-    fetchVerificationStatus();
-  }, [user, walletAddress]);
-
-  // Check if tenant has already applied for this property
-  useEffect(() => {
-    if (!user || !walletAddress || !property?.id) return;
+    if (!walletAddress || !property?.id) return;
     const checkApplication = async () => {
       try {
         const q = query(
@@ -126,45 +115,44 @@ const [rejectionReason, setRejectionReason] = useState<string | null>(null);
         );
         const snap = await getDocs(q);
         if (!snap.empty) {
-  setApplied(true);
-  setApplicationId(snap.docs[0].id);
-  const appData = snap.docs[0].data();
-  setApplicationStatus(appData.status || null);
-  setRejectionReason(appData.rejectionReason || null);
-}
-
+          setApplied(true);
+          setApplicationId(snap.docs[0].id);
+          const appData = snap.docs[0].data();
+          setApplicationStatus(appData.status || null);
+          setRejectionReason(appData.rejectionReason || null);
+        }
       } catch (error) {
         console.error("Error checking application:", error);
       }
     };
     checkApplication();
-  }, [user, walletAddress, property?.id]);
+  }, [walletAddress, property?.id]);
 
-const handleApply = async (newApplicationData?: any) => {
-  if (!user || !property || !walletAddress) return;
-  setApplying(true);
-  try {
-    await addDoc(collection(db, "applications"), {
-      propertyId: property.id,
-      tenantWallet: walletAddress,
-      landlordWallet: property.landlordWallet,
-      status: "Under Review",
-      appliedAt: serverTimestamp(),
-      desiredRent: newApplicationData?.desiredRent || null,
-      moveInDate: newApplicationData?.moveInDate || null,
-      applicationText: newApplicationData?.applicationText || null,
-      propertyTitle: property.title
-    });
-    setApplied(true);
-  } catch (error) {
-    alert("Failed to submit application");
-  } finally {
-    setApplying(false);
-  }
-};
+  const handleApply = async (newApplicationData?: any) => {
+    if (!property || !walletAddress) return;
+    setApplying(true);
+    try {
+      await addDoc(collection(db, "applications"), {
+        propertyId: property.id,
+        tenantWallet: walletAddress,
+        landlordWallet: property.landlordWallet,
+        status: "Under Review",
+        appliedAt: serverTimestamp(),
+        desiredRent: newApplicationData?.desiredRent || null,
+        moveInDate: newApplicationData?.moveInDate || null,
+        applicationText: newApplicationData?.applicationText || null,
+        propertyTitle: property.title
+      });
+      setApplied(true);
+    } catch (error) {
+      alert("Failed to submit application");
+    } finally {
+      setApplying(false);
+    }
+  };
 
   const handleRate = async (rating: number) => {
-    if (!isVerified || !property || !walletAddress) return;
+    if (!property || !walletAddress) return;
     setRatingSubmitting(true);
     try {
       const ratings = Array.isArray((property as any).ratings) ? (property as any).ratings : [];
@@ -185,12 +173,12 @@ const handleApply = async (newApplicationData?: any) => {
     }
   };
 
-  // Carousel controls
   const handlePrev = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!property?.photos) return;
     setPhotoIdx(idx => (idx === 0 ? property.photos.length - 1 : idx - 1));
   };
+  
   const handleNext = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!property?.photos) return;
@@ -221,9 +209,8 @@ const handleApply = async (newApplicationData?: any) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f6f1] via-[#f3f1ea] to-[#ece7de] pb-16">
-      <DashboardHeader title="Discover Properties" userRole="tenant" isVerified={isVerified} />
+      <DashboardHeader title="Discover Properties" userRole="tenant" />
       <div className="w-full px-0 py-0">
-        {/* Back Button */}
         <div className="max-w-6xl mx-auto mt-8 mb-4 flex items-center">
           <Button
             variant="ghost"
@@ -234,12 +221,10 @@ const handleApply = async (newApplicationData?: any) => {
             Back
           </Button>
         </div>
-        {/* Cream/white gradient card with carousel */}
         <div className="w-full max-w-6xl mx-auto rounded-3xl shadow-2xl overflow-hidden mb-12" style={{
           background: "linear-gradient(120deg, #f8f6f1 60%, #ece7de 100%)"
         }}>
           <div className="relative h-80 flex items-stretch">
-            {/* Photo carousel */}
             {property.photos && property.photos.length > 0 ? (
               <>
                 <img
@@ -266,7 +251,6 @@ const handleApply = async (newApplicationData?: any) => {
                     </button>
                   </>
                 )}
-                {/* Geometric carousel indicators */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                   {property.photos.map((_, idx) => (
                     <div
@@ -283,13 +267,11 @@ const handleApply = async (newApplicationData?: any) => {
                 <span className="text-2xl text-black/40">No photos available</span>
               </div>
             )}
-            {/* Verified badge */}
             <div className="absolute top-5 right-5 flex items-center gap-2 bg-white/90 px-3 py-1 rounded-full shadow">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <span className="text-xs font-semibold text-black">Verified</span>
             </div>
           </div>
-          {/* Property Info Overlay */}
           <div className="p-8 pb-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-2 text-black drop-shadow" style={{ fontFamily: '"Cyber", sans-serif' }}>
               {property.title}
@@ -332,9 +314,7 @@ const handleApply = async (newApplicationData?: any) => {
             </div>
           </div>
         </div>
-        {/* Main content grid */}
         <div className="max-w-7xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {/* Description and Features */}
           <div className="md:col-span-2 space-y-8">
             <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white via-[#f8f6f1] to-[#ece7de]">
               <CardContent className="p-8">
@@ -342,11 +322,10 @@ const handleApply = async (newApplicationData?: any) => {
                   Property Description
                 </h2>
                 <div
-  className="text-black/80 leading-relaxed text-lg mb-6 property-description"
-  style={{ wordBreak: "break-word" }}
-  dangerouslySetInnerHTML={{ __html: property.description || "No description available for this property." }}
-/>
-
+                  className="text-black/80 leading-relaxed text-lg mb-6 property-description"
+                  style={{ wordBreak: "break-word" }}
+                  dangerouslySetInnerHTML={{ __html: property.description || "No description available for this property." }}
+                />
                 <h3 className="text-xl font-bold mb-4 text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
                   Property Features
                 </h3>
@@ -368,20 +347,16 @@ const handleApply = async (newApplicationData?: any) => {
                     <span className="font-medium text-black">Rating: {avgRating?.toFixed(1) || "N/A"}/5</span>
                   </div>
                 </div>
-                {/* Rating Section */}
                 <h3 className="text-lg font-bold mb-3 text-black" style={{ fontFamily: '"Cyber", sans-serif'}}>Your Rating</h3>
                 <div className="flex items-center gap-2 mb-2">
                   {[1, 2, 3, 4, 5].map(star => (
                     <StarButton
                       key={star}
                       filled={userRating >= star}
-                      onClick={() => isVerified && !ratingSubmitting ? handleRate(star) : undefined}
-                      disabled={!isVerified || ratingSubmitting}
+                      onClick={() => !ratingSubmitting ? handleRate(star) : undefined}
+                      disabled={ratingSubmitting}
                     />
                   ))}
-                  {!isVerified && (
-                    <span className="ml-2 text-sm text-gray-500 italic">Verify to rate</span>
-                  )}
                 </div>
                 {userRating > 0 && (
                   <p className="text-sm text-gray-600">You rated this property {userRating} star{userRating > 1 ? "s" : ""}.</p>
@@ -389,9 +364,7 @@ const handleApply = async (newApplicationData?: any) => {
               </CardContent>
             </Card>
           </div>
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Owner Information */}
             <Card className="border-0 shadow-lg rounded-2xl bg-gradient-to-br from-white via-[#f8f6f1] to-[#ece7de]">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold mb-4 text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
@@ -429,49 +402,60 @@ const handleApply = async (newApplicationData?: any) => {
                 )}
               </CardContent>
             </Card>
-            {/* Apply Section */}
             <Card className="border-0 shadow-lg rounded-2xl bg-gradient-to-br from-white via-[#f8f6f1] to-[#ece7de]">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold mb-4 text-black" style={{ fontFamily: '"Cyber", sans-serif' }}>
                   Apply for this Property
                 </h3>
-                {user ? (
-  <div>
-    <p className="text-black/80 mb-4">
-      {applied ? "You have already applied for this property." : "Submit your application to get in touch with the landlord."}
-    </p>
-    {applied ? (
-      <Button
-        className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
-        onClick={() => navigate(`/my-applications`)}
-      >
-        View My Applications
-      </Button>
-    ) : (
-      <Button
-        disabled={applying || applied}
-        onClick={() => setShowApplicationDialog(true)}
-        className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
-      >
-        {applying ? "Submitting..." : "Apply Now"}
-      </Button>
-    )}
-    {/* ...rest of the application status and dialog logic... */}
-  </div>
-) : (
-  <div className="text-center">
-    <p className="text-black/80 mb-4 text-sm">
-      Please sign in to apply for this property.
-    </p>
-    <Button
-      className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2"
-      onClick={() => navigate('/')}
-    >
-      Sign In with Civic
-    </Button>
-  </div>
-)}
-
+                {walletAddress ? (
+                  <div>
+                    <p className="text-black/80 mb-4">
+                      {applied ? "Application submitted" : "Submit your application directly"}
+                    </p>
+                    {applied ? (
+                      <Button
+                        className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
+                        onClick={() => navigate(`/my-applications`)}
+                      >
+                        View My Applications
+                      </Button>
+                    ) : (
+                      <Button
+                        disabled={applying || applied}
+                        onClick={() => setShowApplicationDialog(true)}
+                        className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-3 transition-all duration-200"
+                      >
+                        {applying ? "Submitting..." : "Apply Now"}
+                      </Button>
+                    )}
+                    <ApplicationDialog
+                      open={showApplicationDialog}
+                      onOpenChange={setShowApplicationDialog}
+                      onSubmit={handleApply}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-black/80 mb-4 text-sm">
+                      Connect your wallet to apply
+                    </p>
+                    <Button
+                      className="w-full bg-black hover:bg-neutral-900 text-white rounded-xl font-semibold py-2"
+                      onClick={async () => {
+                        try {
+                          const accounts = await window.ethereum.request({ 
+                            method: 'eth_requestAccounts' 
+                          });
+                          setWalletAddress(accounts[0]);
+                        } catch (error) {
+                          console.error("Wallet connection failed:", error);
+                        }
+                      }}
+                    >
+                      Connect Wallet
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
