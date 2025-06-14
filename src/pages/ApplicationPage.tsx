@@ -112,13 +112,13 @@ const fetchApplications = useCallback(async () => {
   }
 }, [publicKey]);
 
-  // useEffect(() => {
-  //   if (!userContext.user || !publicKey) {
-  //     navigate('/');
-  //     return;
-  //   }
-  //   fetchApplications();
-  // }, [userContext, publicKey, navigate, fetchApplications]);
+  useEffect(() => {
+    if (!publicKey) {
+      navigate('/');
+      return;
+    }
+    fetchApplications();
+  }, [publicKey, navigate, fetchApplications]);
 
 
   const handleApprove = (application: Application) => {
