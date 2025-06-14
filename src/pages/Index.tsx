@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -21,7 +20,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rent-blue-50 to-rent-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-100">
       <Header />
       <Hero />
       <AboutSection />

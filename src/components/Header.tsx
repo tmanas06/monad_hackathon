@@ -4,6 +4,8 @@ import { Home, Search, Wallet, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from './theme-toggle';
 import WalletConnect from './WalletConnect';
+import About from './AboutSection';
+
 
 const Header = () => {
   return (
@@ -49,7 +51,7 @@ const Header = () => {
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-8 ml-12">
           <a
-            href="#about"
+            href="/about"  // Changed from "../About" to "/about"
             className="text-lg text-neutral-200 hover:text-white transition font-medium"
             style={{ fontFamily: '"Outfit", sans-serif' }}
           >
