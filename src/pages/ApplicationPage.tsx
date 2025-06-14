@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useWallet } from '@/contexts/WalletContext';
 import { 
   ArrowLeft, 
   User, 
@@ -53,7 +54,7 @@ interface Application {
 }
 
 const ApplicationsPage = () => {
-  const userContext = useUser();
+  const { publicKey } = useWallet();
   const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,17 +69,17 @@ const ApplicationsPage = () => {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
 const [rejectionReason, setRejectionReason] = useState('');
 
-  const walletAddress = userHasWallet(userContext) ? userContext.ethereum.address : null;
+  // const publicKey = userHasWallet(userContext) ? userContext.ethereum.address : null;
 
 
 const fetchApplications = useCallback(async () => {
-  if (!walletAddress) return;
+  if (!publicKey) return;
 
   setLoading(true);
   try {
     const q = query(
       collection(db, "applications"),
-      where("landlordWallet", "==", walletAddress)
+      where("landlordWallet", "==", publicKey)
     );
     const snap = await getDocs(q);
 
@@ -109,15 +110,15 @@ const fetchApplications = useCallback(async () => {
   } finally {
     setLoading(false);
   }
-}, [walletAddress]);
+}, [publicKey]);
 
-  useEffect(() => {
-    if (!userContext.user || !walletAddress) {
-      navigate('/');
-      return;
-    }
-    fetchApplications();
-  }, [userContext, walletAddress, navigate, fetchApplications]);
+  // useEffect(() => {
+  //   if (!userContext.user || !publicKey) {
+  //     navigate('/');
+  //     return;
+  //   }
+  //   fetchApplications();
+  // }, [userContext, publicKey, navigate, fetchApplications]);
 
 
   const handleApprove = (application: Application) => {
